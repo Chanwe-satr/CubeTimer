@@ -13,6 +13,7 @@
             flex-direction: column;
 
             height: 100vh;
+            height: 100dvh;
 
             overflow: hidden;
 
@@ -129,6 +130,109 @@
             height: 100%;
 
             display: block;
+
+        }
+
+
+
+        html,
+        body {
+
+            width: 100%;
+
+            min-height: 100%;
+
+        }
+
+        body > header {
+
+            min-height: 64px;
+
+        }
+
+        #touchArea {
+
+            min-height: 0;
+
+        }
+
+        #scrambleDisplay {
+
+            max-width: min(72rem, calc(100vw - 2rem));
+
+        }
+
+        #visualizer {
+
+            height: clamp(96px, 17vh, 180px) !important;
+
+        }
+
+        #timerDisplay {
+
+            font-size: clamp(5rem, min(15vw, 22vh), 13rem) !important;
+
+            max-width: 100%;
+
+            overflow-wrap: normal;
+
+            white-space: nowrap;
+
+        }
+
+        body > .bg-neutral-950 {
+
+            height: clamp(7rem, 18vh, 12rem) !important;
+
+        }
+
+        @media (min-width: 1024px) and (min-height: 850px) {
+
+            #visualizer {
+
+                height: clamp(120px, 18vh, 210px) !important;
+
+            }
+
+            #timerDisplay {
+
+                font-size: clamp(7rem, min(13vw, 24vh), 14rem) !important;
+
+            }
+
+            body > .bg-neutral-950 {
+
+                height: clamp(8rem, 16vh, 14rem) !important;
+
+            }
+
+        }
+
+        @media (max-height: 760px) and (min-width: 768px) {
+
+            body > header {
+
+                min-height: 56px;
+
+            }
+
+            #visualizer {
+
+                height: clamp(72px, 14vh, 120px) !important;
+
+            }
+
+            #timerDisplay {
+
+                font-size: clamp(4.5rem, min(13vw, 24vh), 9rem) !important;
+
+            }
+
+            body > .bg-neutral-950 {
+
+                height: clamp(5.5rem, 15vh, 8.5rem) !important;
+
+            }
 
         }
 
