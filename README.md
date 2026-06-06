@@ -1,14 +1,27 @@
 # Cube Timer
 
-A personal Rubik's Cube timer project.
+A static Rubik's Cube timer app prepared for Vercel deployment.
 
-## Goals
+## Project Structure
 
-- Record solve times.
-- Track averages such as Ao5 and Ao12.
-- Store solve history.
-- Keep the app simple, fast, and pleasant to use.
+- `public/` is the Vercel deployment output directory.
+- `public/index.html` is the production entry page.
+- `public/styles.css` contains the production styles.
+- `public/app.js` contains the production timer and cube logic.
+- `public/cubetimer.txt` keeps a deployed copy of the original single-file source.
+- `cubetimer/` keeps the organized source files and the untouched original backup.
+- `vercel.json` tells Vercel to deploy the `public/` directory.
 
-## Getting Started
+## Local Preview
 
-Project setup notes will go here once the app stack is chosen.
+Run a static server from the project root:
+
+```bash
+python -m http.server 4173 --directory public
+```
+
+Then open `http://127.0.0.1:4173`.
+
+## Deploy
+
+Import this GitHub repository in Vercel. Vercel will use `public/` as the output directory.
