@@ -1,238 +1,629 @@
-﻿body {
+/* ================= 核心基础布局 ================= */
+body {
+    font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: #121212;
+    color: #e5e5e5;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    touch-action: manipulation;
+    overscroll-behavior: none;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+#touchArea {
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+header {
+    padding-top: env(safe-area-inset-top, 12px);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 12px);
+}
+
+.timer-font {
+    font-family: 'JetBrains Mono', monospace;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+}
+
+.scramble-text {
+    letter-spacing: 0.5px;
+    line-height: 1.4;
+    text-align: center;
+    white-space: pre-wrap;
+    word-break: break-word;
+    transition: color 0.3s ease;
+}
+
+.scrollable-view::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+
+.scrollable-view::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 2px;
+}
+.dark .scrollable-view::-webkit-scrollbar-thumb {
+    background: #404040;
+}
+
+/* ================= 计时状态色彩 ================= */
+.timer-idle {
+    text-shadow: 0 0 20px rgba(150, 150, 150, 0.05);
+}
+.timer-holding {
+    color: #ef4444 !important;
+    text-shadow: 0 0 25px rgba(239, 68, 68, 0.3) !important;
+}
+.timer-ready {
+    color: #22c55e !important;
+    text-shadow: 0 0 25px rgba(34, 197, 94, 0.35) !important;
+}
+.timer-running {
+    text-shadow: none;
+}
+
+/* ================= 魔方 SVG 样式 ================= */
+.cube-face {
+    stroke: #121212;
+    stroke-width: 1px;
+    stroke-linejoin: round;
+    rx: 0.5px;
+}
+.dark .cube-face {
+    stroke: #1e1e1e;
+}
+.c-w { fill: #eeeeee; }
+.c-y { fill: #facc15; }
+.c-g { fill: #22c55e; }
+.c-b { fill: #3b82f6; }
+.c-r { fill: #ef4444; }
+.c-o { fill: #f97316; }
+.c-x { fill: #444444; }
+
+select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.75rem center;
+    background-repeat: no-repeat;
+    background-size: 1.25em 1.25em;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+#visualizer svg {
+    max-width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* 按钮微动动画 */
+.nav-btn {
+    transition: color 0.2s ease, transform 0.1s ease;
+}
+.nav-btn:active {
+    transform: scale(0.95);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+    animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ================= 赛博朋克特效与主题 ================= */
+.cyberpunk-bg {
+    background: radial-gradient(circle at center, #0a0a1a 0%, #000000 100%);
+}
+.glitch-text {
+    position: relative;
+    display: inline-block;
+}
+.glitch-text::before, .glitch-text::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+.glitch-text::before {
+    left: 3px;
+    text-shadow: -2px 0 #ff00c1;
+    clip: rect(24px, 550px, 90px, 0);
+    animation: glitch-anim-2 2s infinite linear alternate-reverse;
+}
+.glitch-text::after {
+    left: -3px;
+    text-shadow: -2px 0 #00fff9;
+    clip: rect(85px, 550px, 140px, 0);
+    animation: glitch-anim 2.5s infinite linear alternate-reverse;
+}
+@keyframes glitch-anim { 0% { clip: rect(21px, 9999px, 96px, 0); } 100% { clip: rect(74px, 9999px, 11px, 0); } }
+@keyframes glitch-anim-2 { 0% { clip: rect(12px, 9999px, 59px, 0); } 100% { clip: rect(65px, 9999px, 100px, 0); } }
+
+/* 赛博朋克风 */
+body.theme-cyberpunk {
+    background-color: #050510 !important;
+    background-image: linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px) !important;
+    background-size: 25px 25px !important;
+}
+body.theme-cyberpunk header, body.theme-cyberpunk nav {
+    background: rgba(5, 5, 16, 0.95) !important;
+    border-color: #0ff !important;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.2) !important;
+}
+body.theme-cyberpunk .bg-white, body.theme-cyberpunk .bg-neutral-900, body.theme-cyberpunk .bg-neutral-50, body.theme-cyberpunk .bg-neutral-100, body.theme-cyberpunk .bg-neutral-800 {
+    background-color: rgba(6, 6, 20, 0.85) !important;
+    border-color: #0ff !important;
+}
+body.theme-cyberpunk .text-neutral-900, body.theme-cyberpunk .text-neutral-800, body.theme-cyberpunk .text-white {
+    color: #0ff !important;
+}
+body.theme-cyberpunk .text-neutral-400, body.theme-cyberpunk .text-neutral-500, body.theme-cyberpunk .text-neutral-600 {
+    color: #0aa !important;
+}
+body.theme-cyberpunk .text-blue-500 {
+    color: #f0f !important;
+    text-shadow: 0 0 5px #f0f;
+}
+body.theme-cyberpunk .nav-btn.text-blue-500 {
+    color: #0ff !important;
+    text-shadow: 0 0 8px #0ff;
+}
+body.theme-cyberpunk select {
+    background-color: #001a1a !important;
+    color: #0ff !important;
+    border: 1px solid #0ff !important;
+}
+body.theme-cyberpunk .timer-idle {
+    color: #0ff !important;
+    text-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
+}
+body.theme-cyberpunk .scramble-text {
+    color: #f0f !important;
+    text-shadow: 0 0 3px rgba(255, 0, 255, 0.4);
+}
+body.theme-cyberpunk .cube-face {
+    stroke: #0ff !important;
+}
+body.theme-cyberpunk button.bg-blue-500 {
+    background-color: #f0f !important;
+    color: #fff !important;
+    box-shadow: 0 0 10px #f0f !important;
+}
+
+/* ================= 翡翠绿 (Emerald) 主题 ================= */
+body.theme-emerald {
+    background-color: #f4fbf7;
+    color: #1b4332;
+}
+html.dark body.theme-emerald {
+    background-color: #081c15 !important;
+    color: #d8f3dc;
+}
+body.theme-emerald header, body.theme-emerald nav {
+    background-color: #ffffff !important;
+    border-color: #d8f3dc !important;
+}
+html.dark body.theme-emerald header, html.dark body.theme-emerald nav {
+    background-color: #1b4332 !important;
+    border-color: #2d6a4f !important;
+}
+body.theme-emerald .bg-white, body.theme-emerald .bg-neutral-50, body.theme-emerald .bg-neutral-100 {
+    background-color: #e9f5ed !important;
+    border-color: #b7e4c7 !important;
+}
+html.dark body.theme-emerald .bg-white, html.dark body.theme-emerald .bg-neutral-900, html.dark body.theme-emerald .bg-neutral-800 {
+    background-color: #113022 !important;
+    border-color: #2d6a4f !important;
+}
+body.theme-emerald .text-neutral-900, body.theme-emerald .text-neutral-800, body.theme-emerald .text-white {
+    color: #1b4332 !important;
+}
+html.dark body.theme-emerald .text-neutral-900, html.dark body.theme-emerald .text-neutral-800, html.dark body.theme-emerald .text-white {
+    color: #d8f3dc !important;
+}
+body.theme-emerald .text-neutral-400, body.theme-emerald .text-neutral-500, body.theme-emerald .text-neutral-600 {
+    color: #40916c !important;
+}
+body.theme-emerald .text-blue-500, body.theme-emerald .nav-btn.text-blue-500 {
+    color: #2d6a4f !important;
+    text-shadow: 0 0 5px rgba(45, 106, 79, 0.2);
+}
+html.dark body.theme-emerald .text-blue-500, html.dark body.theme-emerald .nav-btn.text-blue-500 {
+    color: #52b788 !important;
+    text-shadow: 0 0 5px rgba(82, 183, 136, 0.4);
+}
+body.theme-emerald button.bg-blue-500 {
+    background-color: #2d6a4f !important;
+    color: #fff !important;
+}
+html.dark body.theme-emerald button.bg-blue-500 {
+    background-color: #40916c !important;
+    color: #fff !important;
+}
+body.theme-emerald select {
+    background-color: #e9f5ed !important;
+    color: #1b4332 !important;
+    border-color: #b7e4c7 !important;
+}
+html.dark body.theme-emerald select {
+    background-color: #113022 !important;
+    color: #d8f3dc !important;
+    border-color: #2d6a4f !important;
+}
+body.theme-emerald .timer-idle {
+    color: #2d6a4f !important;
+}
+html.dark body.theme-emerald .timer-idle {
+    color: #52b788 !important;
+    text-shadow: 0 0 10px rgba(82, 183, 136, 0.2);
+}
+
+/* ================= 樱花粉 (Sakura) 主题 ================= */
+body.theme-sakura {
+    background-color: #fff5f5;
+    color: #702459;
+}
+html.dark body.theme-sakura {
+    background-color: #2a081c !important;
+    color: #fbcfe8;
+}
+body.theme-sakura header, body.theme-sakura nav {
+    background-color: #ffffff !important;
+    border-color: #fce7f3 !important;
+}
+html.dark body.theme-sakura header, html.dark body.theme-sakura nav {
+    background-color: #4c1d3f !important;
+    border-color: #702459 !important;
+}
+body.theme-sakura .bg-white, body.theme-sakura .bg-neutral-50, body.theme-sakura .bg-neutral-100 {
+    background-color: #fff1f2 !important;
+    border-color: #fecdd3 !important;
+}
+html.dark body.theme-sakura .bg-white, html.dark body.theme-sakura .bg-neutral-900, html.dark body.theme-sakura .bg-neutral-800 {
+    background-color: #3b122d !important;
+    border-color: #702459 !important;
+}
+body.theme-sakura .text-neutral-900, body.theme-sakura .text-neutral-800, body.theme-sakura .text-white {
+    color: #702459 !important;
+}
+html.dark body.theme-sakura .text-neutral-900, html.dark body.theme-sakura .text-neutral-800, html.dark body.theme-sakura .text-white {
+    color: #fbcfe8 !important;
+}
+body.theme-sakura .text-neutral-400, body.theme-sakura .text-neutral-500, body.theme-sakura .text-neutral-600 {
+    color: #be185d !important;
+}
+body.theme-sakura .text-blue-500, body.theme-sakura .nav-btn.text-blue-500 {
+    color: #db2777 !important;
+}
+html.dark body.theme-sakura .text-blue-500, html.dark body.theme-sakura .nav-btn.text-blue-500 {
+    color: #f472b6 !important;
+    text-shadow: 0 0 5px rgba(244, 114, 182, 0.4);
+}
+body.theme-sakura button.bg-blue-500 {
+    background-color: #db2777 !important;
+    color: #fff !important;
+}
+html.dark body.theme-sakura button.bg-blue-500 {
+    background-color: #be185d !important;
+    color: #fff !important;
+}
+body.theme-sakura select {
+    background-color: #fff1f2 !important;
+    color: #702459 !important;
+    border-color: #fecdd3 !important;
+}
+html.dark body.theme-sakura select {
+    background-color: #3b122d !important;
+    color: #fbcfe8 !important;
+    border-color: #702459 !important;
+}
+body.theme-sakura .timer-idle {
+    color: #db2777 !important;
+}
+html.dark body.theme-sakura .timer-idle {
+    color: #f472b6 !important;
+    text-shadow: 0 0 10px rgba(244, 114, 182, 0.2);
+}
+
+/* ================= 深海蓝 (Ocean) 主题 ================= */
+body.theme-ocean {
+    background-color: #f0f9ff;
+    color: #0369a1;
+}
+html.dark body.theme-ocean {
+    background-color: #0b132b !important;
+    color: #e0f2fe;
+}
+body.theme-ocean header, body.theme-ocean nav {
+    background-color: #ffffff !important;
+    border-color: #bae6fd !important;
+}
+html.dark body.theme-ocean header, html.dark body.theme-ocean nav {
+    background-color: #1c2541 !important;
+    border-color: #0b132b !important;
+}
+body.theme-ocean .bg-white, body.theme-ocean .bg-neutral-50, body.theme-ocean .bg-neutral-100 {
+    background-color: #e0f2fe !important;
+    border-color: #7dd3fc !important;
+}
+html.dark body.theme-ocean .bg-white, html.dark body.theme-ocean .bg-neutral-900, html.dark body.theme-ocean .bg-neutral-800 {
+    background-color: #101f35 !important;
+    border-color: #1c2541 !important;
+}
+body.theme-ocean .text-neutral-900, body.theme-ocean .text-neutral-800, body.theme-ocean .text-white {
+    color: #0369a1 !important;
+}
+html.dark body.theme-ocean .text-neutral-900, html.dark body.theme-ocean .text-neutral-800, html.dark body.theme-ocean .text-white {
+    color: #e0f2fe !important;
+}
+body.theme-ocean .text-neutral-400, body.theme-ocean .text-neutral-500, body.theme-ocean .text-neutral-600 {
+    color: #0284c7 !important;
+}
+body.theme-ocean .text-blue-500, body.theme-ocean .nav-btn.text-blue-500 {
+    color: #0284c7 !important;
+}
+html.dark body.theme-ocean .text-blue-500, html.dark body.theme-ocean .nav-btn.text-blue-500 {
+    color: #38bdf8 !important;
+    text-shadow: 0 0 5px rgba(56, 189, 248, 0.4);
+}
+body.theme-ocean button.bg-blue-500 {
+    background-color: #0284c7 !important;
+    color: #fff !important;
+}
+html.dark body.theme-ocean button.bg-blue-500 {
+    background-color: #0369a1 !important;
+    color: #fff !important;
+}
+body.theme-ocean select {
+    background-color: #e0f2fe !important;
+    color: #0369a1 !important;
+    border-color: #7dd3fc !important;
+}
+html.dark body.theme-ocean select {
+    background-color: #101f35 !important;
+    color: #e0f2fe !important;
+    border-color: #1c2541 !important;
+}
+body.theme-ocean .timer-idle {
+    color: #0284c7 !important;
+}
+html.dark body.theme-ocean .timer-idle {
+    color: #38bdf8 !important;
+    text-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+}
+
+/* ================= 北欧风 (Nord) 主题 ================= */
+body.theme-nord {
+    background-color: #e5e9f0;
+    color: #2e3440;
+}
+html.dark body.theme-nord {
+    background-color: #2e3440 !important;
+    color: #eceff4;
+}
+body.theme-nord header, body.theme-nord nav {
+    background-color: #d8dee9 !important;
+    border-color: #c0c4cc !important;
+}
+html.dark body.theme-nord header, html.dark body.theme-nord nav {
+    background-color: #3b4252 !important;
+    border-color: #434c5e !important;
+}
+body.theme-nord .bg-white, body.theme-nord .bg-neutral-50, body.theme-nord .bg-neutral-100 {
+    background-color: #eceff4 !important;
+    border-color: #d8dee9 !important;
+}
+html.dark body.theme-nord .bg-white, html.dark body.theme-nord .bg-neutral-900, html.dark body.theme-nord .bg-neutral-800 {
+    background-color: #434c5e !important;
+    border-color: #4c566a !important;
+}
+body.theme-nord .text-neutral-900, body.theme-nord .text-neutral-800, body.theme-nord .text-white {
+    color: #2e3440 !important;
+}
+html.dark body.theme-nord .text-neutral-900, html.dark body.theme-nord .text-neutral-800, html.dark body.theme-nord .text-white {
+    color: #eceff4 !important;
+}
+body.theme-nord .text-neutral-400, body.theme-nord .text-neutral-500, body.theme-nord .text-neutral-600 {
+    color: #4c566a !important;
+}
+body.theme-nord .text-blue-500, body.theme-nord .nav-btn.text-blue-500 {
+    color: #5e81ac !important;
+}
+html.dark body.theme-nord .text-blue-500, html.dark body.theme-nord .nav-btn.text-blue-500 {
+    color: #88c0d0 !important;
+    text-shadow: 0 0 5px rgba(136, 192, 208, 0.4);
+}
+body.theme-nord button.bg-blue-500 {
+    background-color: #5e81ac !important;
+    color: #fff !important;
+}
+html.dark body.theme-nord button.bg-blue-500 {
+    background-color: #81a1c1 !important;
+    color: #fff !important;
+}
+body.theme-nord select {
+    background-color: #eceff4 !important;
+    color: #2e3440 !important;
+    border-color: #d8dee9 !important;
+}
+html.dark body.theme-nord select {
+    background-color: #434c5e !important;
+    color: #eceff4 !important;
+    border-color: #4c566a !important;
+}
+body.theme-nord .timer-idle {
+    color: #5e81ac !important;
+}
+html.dark body.theme-nord .timer-idle {
+    color: #88c0d0 !important;
+    text-shadow: 0 0 10px rgba(136, 192, 208, 0.2);
+}
+
+/* ================= 落日黄 (Sunset) 主题 ================= */
+body.theme-sunset {
+    background-color: #fffdf5;
+    color: #78350f;
+}
+html.dark body.theme-sunset {
+    background-color: #1c100b !important;
+    color: #fef3c7;
+}
+body.theme-sunset header, body.theme-sunset nav {
+    background-color: #ffffff !important;
+    border-color: #fde68a !important;
+}
+html.dark body.theme-sunset header, html.dark body.theme-sunset nav {
+    background-color: #2e1a11 !important;
+    border-color: #451a03 !important;
+}
+body.theme-sunset .bg-white, body.theme-sunset .bg-neutral-50, body.theme-sunset .bg-neutral-100 {
+    background-color: #fef3c7 !important;
+    border-color: #fcd34d !important;
+}
+html.dark body.theme-sunset .bg-white, html.dark body.theme-sunset .bg-neutral-900, html.dark body.theme-sunset .bg-neutral-800 {
+    background-color: #27140c !important;
+    border-color: #451a03 !important;
+}
+body.theme-sunset .text-neutral-900, body.theme-sunset .text-neutral-800, body.theme-sunset .text-white {
+    color: #78350f !important;
+}
+html.dark body.theme-sunset .text-neutral-900, html.dark body.theme-sunset .text-neutral-800, html.dark body.theme-sunset .text-white {
+    color: #fef3c7 !important;
+}
+body.theme-sunset .text-neutral-400, body.theme-sunset .text-neutral-500, body.theme-sunset .text-neutral-600 {
+    color: #b45309 !important;
+}
+body.theme-sunset .text-blue-500, body.theme-sunset .nav-btn.text-blue-500 {
+    color: #d97706 !important;
+}
+html.dark body.theme-sunset .text-blue-500, html.dark body.theme-sunset .nav-btn.text-blue-500 {
+    color: #f59e0b !important;
+    text-shadow: 0 0 5px rgba(245, 158, 11, 0.4);
+}
+body.theme-sunset button.bg-blue-500 {
+    background-color: #d97706 !important;
+    color: #fff !important;
+}
+html.dark body.theme-sunset button.bg-blue-500 {
+    background-color: #b45309 !important;
+    color: #fff !important;
+}
+body.theme-sunset select {
+    background-color: #fef3c7 !important;
+    color: #78350f !important;
+    border-color: #fcd34d !important;
+}
+html.dark body.theme-sunset select {
+    background-color: #27140c !important;
+    color: #fef3c7 !important;
+    border-color: #451a03 !important;
+}
+body.theme-sunset .timer-idle {
+    color: #d97706 !important;
+}
+html.dark body.theme-sunset .timer-idle {
+    color: #f59e0b !important;
+    text-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+}
+
+/* ================= 极简化布局修剪和排版补充 ================= */
+body > header {
+    min-height: 64px;
+}
+#touchArea {
+    min-height: 0;
+}
+#scrambleDisplay {
+    max-width: min(72rem, calc(100vw - 2rem));
+}
+#visualizer {
+    height: clamp(96px, 17vh, 180px) !important;
+}
+#timerDisplay {
+    font-size: clamp(4.5rem, min(14vw, 22vh), 12rem) !important;
+    max-width: 100%;
+    overflow-wrap: normal;
+    white-space: nowrap;
+}
+
+@media (min-width: 1024px) and (min-height: 850px) {
+    #visualizer {
+        height: clamp(120px, 18vh, 210px) !important;
+    }
+    #timerDisplay {
+        font-size: clamp(6.5rem, min(13vw, 24vh), 13.5rem) !important;
+    }
+}
+
+@media (max-height: 760px) and (min-width: 768px) {
+    body > header {
+        min-height: 56px;
+    }
+    #visualizer {
+        height: clamp(72px, 14vh, 120px) !important;
+    }
+    #timerDisplay {
+        font-size: clamp(4rem, min(13vw, 24vh), 8.5rem) !important;
+    }
+}
+
+/* ================= 滑块开关 (Toggle Switch) 修复 ================= */
+.toggle-checkbox {
+    left: 0;
+    top: 0;
+    transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), border-color 0.2s ease;
+}
+.toggle-checkbox:checked {
+    transform: translateX(24px);
+    border-color: #3b82f6 !important;
+}
+.toggle-checkbox:checked + .toggle-label {
+    background-color: #3b82f6 !important;
+}
+
+/* ================= 简洁黑白 (Minimal) 默认大背景纯净化与浅色发光优化 ================= */
+body {
+    background-color: #ffffff !important;
+}
+html.dark body {
+    background-color: #121212 !important;
+}
+
+/* 浅色模式下禁用计时器发光，避免文字边缘发虚影响对比度 */
+html:not(.dark) .timer-idle,
+html:not(.dark) .timer-holding,
+html:not(.dark) .timer-ready {
+    text-shadow: none !important;
+}
+
+/* ================= 教程板块动态公式卡片折叠与动画 ================= */
+.rotate-chevron {
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.rotate-chevron.expanded {
+    transform: rotate(90deg);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+    animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
 
-            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-
-            background-color: #1a1a1a;
-
-            color: #e5e5e5;
-
-            margin: 0;
-
-            display: flex;
-
-            flex-direction: column;
-
-            height: 100vh;
-            height: 100dvh;
-
-            overflow: hidden;
-
-            touch-action: manipulation;
-
-            overscroll-behavior: none;
-
-        }
-
-       
-
-        .timer-font {
-
-            font-family: 'JetBrains Mono', monospace;
-
-            font-variant-numeric: tabular-nums;
-
-        }
-
-
-
-        .scramble-text {
-
-            letter-spacing: 0.5px;
-
-            line-height: 1.3;
-
-            text-align: center;
-
-            white-space: pre-wrap;
-
-            word-break: break-word;
-
-        }
-
-
-
-        .timer-idle { color: #e5e5e5; }
-
-        .timer-holding { color: #ef4444; }
-
-        .timer-ready { color: #22c55e; }
-
-        .timer-running { color: #e5e5e5; }
-
-
-
-        #touchArea {
-
-            -webkit-tap-highlight-color: transparent;
-
-            user-select: none;
-
-            -webkit-user-select: none;
-
-        }
-
-
-
-        header { padding-top: env(safe-area-inset-top, 16px); }
-
-        .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 16px); }
-
-
-
-        #historyList::-webkit-scrollbar { width: 4px; }
-
-        #historyList::-webkit-scrollbar-thumb { background: #404040; border-radius: 2px; }
-
-
-
-        /* SVG Styles */
-
-        .cube-face { stroke: #000; stroke-width: 1px; }
-
-        .c-w { fill: #ffffff; }
-
-        .c-y { fill: #ffd500; }
-
-        .c-g { fill: #009e60; }
-
-        .c-b { fill: #0051ba; }
-
-        .c-r { fill: #c41e3a; }
-
-        .c-o { fill: #ff5800; }
-
-        .c-x { fill: #444444; }
-
-
-
-        select {
-
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-
-            background-position: right 0.5rem center;
-
-            background-repeat: no-repeat;
-
-            background-size: 1.5em 1.5em;
-
-            -webkit-appearance: none;
-
-            appearance: none;
-
-        }
-
-       
-
-        #visualizer svg {
-
-            max-width: 100%;
-
-            height: 100%;
-
-            display: block;
-
-        }
-
-
-
-        html,
-        body {
-
-            width: 100%;
-
-            min-height: 100%;
-
-        }
-
-        body > header {
-
-            min-height: 64px;
-
-        }
-
-        #touchArea {
-
-            min-height: 0;
-
-        }
-
-        #scrambleDisplay {
-
-            max-width: min(72rem, calc(100vw - 2rem));
-
-        }
-
-        #visualizer {
-
-            height: clamp(96px, 17vh, 180px) !important;
-
-        }
-
-        #timerDisplay {
-
-            font-size: clamp(5rem, min(15vw, 22vh), 13rem) !important;
-
-            max-width: 100%;
-
-            overflow-wrap: normal;
-
-            white-space: nowrap;
-
-        }
-
-        body > .bg-neutral-950 {
-
-            height: clamp(7rem, 18vh, 12rem) !important;
-
-        }
-
-        @media (min-width: 1024px) and (min-height: 850px) {
-
-            #visualizer {
-
-                height: clamp(120px, 18vh, 210px) !important;
-
-            }
-
-            #timerDisplay {
-
-                font-size: clamp(7rem, min(13vw, 24vh), 14rem) !important;
-
-            }
-
-            body > .bg-neutral-950 {
-
-                height: clamp(8rem, 16vh, 14rem) !important;
-
-            }
-
-        }
-
-        @media (max-height: 760px) and (min-width: 768px) {
-
-            body > header {
-
-                min-height: 56px;
-
-            }
-
-            #visualizer {
-
-                height: clamp(72px, 14vh, 120px) !important;
-
-            }
-
-            #timerDisplay {
-
-                font-size: clamp(4.5rem, min(13vw, 24vh), 9rem) !important;
-
-            }
-
-            body > .bg-neutral-950 {
-
-                height: clamp(5.5rem, 15vh, 8.5rem) !important;
-
-            }
-
-        }
 

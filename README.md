@@ -1,27 +1,92 @@
-# Cube Timer
+# Cube Timer Pro | 专业魔方计时器
 
-A static Rubik's Cube timer app prepared for Vercel deployment.
+一个功能完备、界面极具现代设计感的专业魔方计时器。本项目现已升级为**前后端分离的本地全功能版**，除支持精确计时和打乱视图展示外，还加入了本地用户系统（注册/登录/免登）、多端数据云同步、社区交流、高级配色主题以及更多专业魔方支持。
 
-## Project Structure
+---
 
-- `public/` is the Vercel deployment output directory.
-- `public/index.html` is the production entry page.
-- `public/styles.css` contains the production styles.
-- `public/app.js` contains the production timer and cube logic.
-- `public/cubetimer.txt` keeps a deployed copy of the original single-file source.
-- `cubetimer/` keeps the organized source files and the untouched original backup.
-- `vercel.json` tells Vercel to deploy the `public/` directory.
+## 🌟 核心升级特性
 
-## Local Preview
+1. **本地用户系统与云同步**：
+   - 彻底摒弃了外部 Firebase，改用纯本地搭建的 Node.js Express 后端进行账密安全管理。
+   - 使用 JWT 无缝支持 30 天免登录，登录后在联网状态下，计时成绩实时自动同步合并至本地数据库。
+   - 提供**离线优雅降级**：即便服务器未启动，也会自动存入浏览器 `localStorage`，不会丢失任何数据。
 
-Run a static server from the project root:
+2. **5 款全新高级配色主题**：
+   - 简洁黑白 (Minimal) | 炫酷赛博朋克 (Cyberpunk)。
+   - **翡翠森林 (Emerald)**：大自然清爽绿与轻奢金。
+   - **浪漫樱花 (Sakura)**：甜美淡雅的樱粉设计。
+   - **静谧深海 (Ocean)**：舒适的海洋深蓝视觉。
+   - **北欧极光 (Nord)**：冷色调极客灰蓝。
+   - **温暖落日 (Sunset)**：温馨舒适的秋日金橙。
+
+3. **新增打乱与 WCA 2D 展开图渲染**：
+   - **传统 NxN 渲染 (2x2 至 7x7)**：使用高性能矢量 SVG 进行面状展现。
+   - **金字塔 (Pyraminx)**：矢量图形独立极速渲染。
+   - **五魔方 (Megaminx) / 斜转 (Skewb) / SQ-1 / 魔表 (Rubik's Clock)**：内置对应的 WCA 官方打乱生成，并引入 `<twisty-player>` 的 2D 平面展开图渲染模式 (visualization="2D")。这使得初始化与渲染速度呈十倍级提升，且支持一次性呈现所有面，极大方便选手打乱和观察。
+
+4. **CFOP 教程板块全面拓展 (119 个公式与思路)**：
+   - **C - 底十字 (Cross)**：系统阐述 8 步内复原思路、配色理念、观察与指法思路。
+   - **F - 前两层 (F2L)**：收录全部 41 个标准公式与技巧。
+   - **O - 顶层方向 (OLL)**：收录全部 57 个标准公式。
+   - **P - 顶层位置 (PLL)**：收录全部 21 个标准公式（Aa-Z Perm 全系列）。
+   - **智能检索**：教程顶部提供了搜索过滤框，输入如 "T"、"F2L 25"、"Sune" 即可零延迟过滤，方便随时查阅。
+    - **卡片折叠与 3D 静态示意图 (UFR 三面) 零延迟**：支持点击任一公式卡片展开。系统完全抛弃了外部 WebGL 3D 渲染，改为由纯 JavaScript 状态机在 0.05ms 内通过公式逆动作自动完成打乱计算，并直接拼接生成等角投影的 3D SVG 插入页面。魔方固定展示前、顶、右 (UFR) 三面视角，带来真正的零延迟、零卡顿瞬发加载体验。
+
+---
+
+## 📂 项目结构
+
+- `server.js` - 后端 Express 主程序，托管静态页面并提供注册、登录、同步及社区 API。
+- `db.js` - 轻量级文件型 JSON 数据库组件，负责操作 `data/` 下的数据存储。
+- `package.json` - 后端项目的依赖清单及常用脚本配置。
+- `cubetimer/` - 前端开发源码目录（包含 `index.html`、`app.js`、`styles.css`）。
+- `public/` - Vercel 分发目录，每次更改后与 `cubetimer/` 同步，可直接导入 Vercel 静态托管。
+- `data/` - 本地数据库文件存放处。
+
+---
+
+## 🚀 本地运行与测试指南
+
+通过以下步骤在本地启动测试服务器并打开计时器：
+
+### 1. 安装依赖环境
+
+确保您的系统已安装了 [Node.js](https://nodejs.org/)。在 `CubeTimer` 文件夹下打开终端，并运行：
 
 ```bash
-python -m http.server 4173 --directory public
+# 安装 Express, Cors, BcryptJS, JWT 等核心依赖
+npm install
 ```
 
-Then open `http://127.0.0.1:4173`.
+### 2. 启动本地服务器
 
-## Deploy
+```bash
+# 启动本地后端服务（默认监听 3000 端口）
+npm start
+```
 
-Import this GitHub repository in Vercel. Vercel will use `public/` as the output directory.
+启动成功后，控制台会输出：
+```text
+=================================================
+  魔方计时器本地后端服务已启动！
+  本地测试地址: http://localhost:3000
+=================================================
+```
+
+### 3. 开始测试
+
+在浏览器中打开 `http://localhost:3000`：
+- **注册/登录**：前往【设置】卡片页，点击【登录 / 注册】。注册一个新账号并登录。
+- **计时同步**：返回【计时】页进行几组计时，或前往【设置】点击【立即同步】。刷新页面，确认成绩已妥善同步（不会因刷新丢失）。
+- **主题切换**：在【设置】中尝试切换“翡翠森林”、“浪漫樱花”等主题，感受全新的 UI 色调变化。
+- **高级魔方**：下拉选择“Skewb (斜转魔方)”、“Square-1 (SQ-1)” 或 “Rubik's Clock (魔表)”，即可看到对应的专业打乱以及 2D 平面打乱展开视图。
+- **公式 3D 静态示意图**：切换到【教程】卡片页，点击任一公式展开它。系统会基于纯 JS 引擎瞬间生成对应的等角投影魔方 SVG。它以固定的 UFR 三面视角直接显示公式打乱后的状态，完全没有 3D 库加载或 WebGL 初始化等待，时间速度绝对优先。
+- **公式检索**：在搜索框中输入搜索词（如 "T" 或 "F2L 5"）进行无延迟的公式过滤匹配。
+
+---
+
+## 🌐 静态托管与 Vercel 部署
+
+本项目支持在静态托管平台（如 Vercel、GitHub Pages 等）直接部署：
+- Vercel 部署会自动关联 `vercel.json` 并使用 `public/` 文件夹为托管输出。
+- 在未与本地 API 服务器通信时，网页将**自动退回到单机 localStorage 模式**，不影响核心的计时、打乱、统计以及本地历史记录的展示。

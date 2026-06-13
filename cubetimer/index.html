@@ -1,214 +1,372 @@
-﻿<!DOCTYPE html>
-
-<html lang="zh-CN">
-
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-
-    <meta name="theme-color" content="#171717">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, viewport-fit=cover">
+    <meta name="theme-color" content="#121212" id="themeColorMeta">
     <meta name="apple-mobile-web-app-capable" content="yes">
-
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-    <title>鏋侀€熼瓟鏂硅鏃跺櫒 | SpeedCube Timer</title>
-
-
-
-    <!-- 浼樺寲1: 棰勮繛鎺ュ瓧浣撴湇鍔″櫒 -->
+    <meta name="format-detection" content="telephone=no">
+    <title>Cube Timer | 专业移动魔方计时器</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
-
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-   
-
-    <!-- Web App Manifest Placeholder -->
-
-    <link rel="manifest" id="manifest-placeholder">
-
-
-
-    <!-- 浼樺寲2: 寮傛鍔犺浇澶栭儴 CSS -->
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
-
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-
-   
-
-    <!-- Tailwind CSS -->
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Montserrat:wght@400;600;800;900&display=swap" rel="stylesheet">
+    
+    <!-- 引入 Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: { extend: {} }
+        }
+    </script>
+    
+    <!-- 引入自定义主题与基础布局样式 -->
     <link rel="stylesheet" href="styles.css">
-
 </head>
+<body class="flex flex-col bg-neutral-100 dark:bg-[#121212] text-neutral-900 dark:text-[#e5e5e5] transition-colors duration-300">
 
-<body class="h-screen flex flex-col overflow-hidden">
-
-
-
-    <!-- Header -->
-
-    <header class="flex justify-between items-center px-4 md:px-6 py-3 bg-neutral-900 border-b border-neutral-800 shrink-0 z-30">
-
-        <div class="flex items-center gap-2">
-
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-
-                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-
-                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-
-                <line x1="12" y1="22.08" x2="12" y2="12"></line>
-
-            </svg>
-
-            <div class="flex flex-col justify-center">
-
-                <h1 class="text-xl font-extrabold tracking-tighter text-white leading-none" style="font-family: 'Montserrat', sans-serif;">
-
-                    CUBE<span class="text-blue-500">TIMER</span>
-
-                </h1>
-
-                <span class="text-[0.5rem] tracking-[0.2em] text-neutral-500 uppercase font-bold">Pro Edition</span>
-
+    <!-- 顶部导航 -->
+    <header class="flex justify-between items-center px-4 md:px-6 pb-2 bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 shrink-0 z-30 shadow-sm transition-colors duration-300">
+        <div class="flex items-center gap-3">
+            <div class="bg-blue-500/10 dark:bg-blue-500/20 p-2 rounded-lg">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                </svg>
             </div>
-
+            <div class="flex flex-col justify-center">
+                <h1 class="text-lg font-black tracking-tight text-neutral-900 dark:text-white leading-none">CUBE<span class="text-blue-500">TIMER</span></h1>
+            </div>
         </div>
-
-        <div class="flex gap-3 items-center">
-
-            <button id="installBtn" onclick="installApp()" class="hidden bg-blue-600 hover:bg-blue-500 text-white text-[10px] md:text-xs font-bold py-1 px-3 rounded-full transition">APP</button>
-
-            <button onclick="clearHistory()" class="text-neutral-400 hover:text-red-400 p-2"><i class="fas fa-trash-alt"></i></button>
-
+        <div class="flex gap-4 items-center h-8" id="headerActions">
+            <button onclick="window.clearHistory()" class="hidden text-neutral-400 active:text-red-500 p-2 transition-colors" id="clearBtn"><i class="fas fa-trash-alt text-lg"></i></button>
         </div>
-
     </header>
 
+    <!-- 视图主容器 -->
+    <div class="flex-1 relative overflow-hidden">
+        
+        <!-- ================= [1] 计时器视图 ================= -->
+        <main id="timerView" class="tab-view absolute inset-0 flex flex-col w-full h-full overflow-hidden transition-opacity duration-200 z-10">
+            <div class="flex flex-col items-center pt-4 z-20 shrink-0 px-4 transition-opacity duration-200" id="topControls">
+                <div class="relative w-full max-w-xs flex justify-center mb-2">
+                    <select id="puzzleType" onchange="window.changePuzzleType()" class="bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white text-sm font-bold py-2 pl-4 pr-10 rounded-xl border border-neutral-300 dark:border-neutral-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition cursor-pointer w-auto shadow-sm">
+                        <option value="222">2x2x2 Cube</option>
+                        <option value="333" selected>3x3x3 Cube</option>
+                        <option value="333oh">3x3x3 (单手)</option>
+                        <option value="333bld">3x3x3 (盲拧)</option>
+                        <option value="444">4x4x4 Cube</option>
+                        <option value="555">5x5x5 Cube</option>
+                        <option value="666">6x6x6 Cube</option>
+                        <option value="777">7x7x7 Cube</option>
+                        <option value="pyram">Pyraminx (金字塔)</option>
+                        <option value="mega">Megaminx (五魔方)</option>
+                        <option value="skewb">Skewb (斜转魔方)</option>
+                        <option value="sq1">Square-1 (SQ-1)</option>
+                        <option value="clock">Rubik's Clock (魔表)</option>
+                    </select>
+                </div>
+                <div id="scrambleDisplay" class="scramble-text text-base md:text-xl font-medium text-neutral-700 dark:text-neutral-300 w-full max-w-3xl cursor-pointer active:text-black dark:active:text-white transition-colors py-2 px-2 rounded-lg select-none max-h-[14vh] overflow-y-auto" onclick="window.newScramble()">
+                    正在生成打乱...
+                </div>
+            </div>
 
+            <!-- 3D/2D 视图与计时器显示 -->
+            <div class="flex-1 flex items-center justify-center flex-col z-10 w-full relative min-h-0">
+                <div id="visualizer" class="w-full flex justify-center items-center h-[20vh] min-h-[80px] mb-2 transition-opacity duration-200">
+                    <!-- SVG 或 twisty-player 图形注入此处 -->
+                </div>
+                <div id="timerDisplay" class="timer-font text-[22vw] md:text-[12rem] font-bold leading-none timer-idle text-neutral-900 dark:text-neutral-100 select-none transition-all duration-100 tabular-nums tracking-tight">
+                    0.00
+                </div>
+                <div id="instruction" class="absolute bottom-6 text-neutral-500 text-xs font-bold uppercase tracking-[0.2em] text-center opacity-60 animate-pulse">
+                    <span class="hidden md:inline">按空格键开始 / 按任意键结束</span>
+                    <span class="md:hidden">长按屏幕开始 / 再次点击结束</span>
+                </div>
+            </div>
 
-    <!-- Main Content -->
+            <!-- 底部单条成绩 Ao5 面板 -->
+            <div class="w-full bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md border-t border-neutral-200 dark:border-neutral-800 p-3 z-20 shrink-0 flex flex-col items-center justify-center shadow-[0_-5px_20px_rgba(0,0,0,0.05)] transition-colors">
+                <div class="text-[10px] text-neutral-500 dark:text-neutral-400 font-bold uppercase tracking-widest mb-1 flex items-center gap-2">
+                    Current Ao5 <span id="ao5Type" class="bg-neutral-100 dark:bg-neutral-800 px-1.5 py-0.5 rounded text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-700">3x3x3 Cube</span>
+                </div>
+                <div id="statAo5" class="text-3xl font-black text-blue-500 dark:text-cyan-400 drop-shadow-[0_0_12px_rgba(59,130,246,0.15)] tracking-tight">--</div>
+            </div>
+        </main>
 
-    <main class="flex-1 flex flex-col relative overflow-hidden" id="touchArea">
-
-       
-
-        <!-- Top Control Bar -->
-
-        <div class="flex justify-center pt-2 z-20">
-
-            <div class="relative">
-
-                <select id="puzzleType" onchange="changePuzzleType()" class="bg-neutral-800 text-white text-xs md:text-sm font-bold py-1 pl-3 pr-8 rounded-full border border-neutral-700 focus:outline-none focus:border-blue-500 transition cursor-pointer">
-
-                    <option value="333">3x3x3</option>
-
+        <!-- ================= [2] 历史记录视图 ================= -->
+        <main id="historyView" class="tab-view scrollable-view hidden absolute inset-0 flex flex-col w-full h-full overflow-hidden bg-neutral-50 dark:bg-[#0a0a0a] transition-opacity duration-200 z-0 pb-16">
+            <div class="px-4 py-3 bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 shadow-sm shrink-0 flex justify-between items-center z-10 transition-colors">
+                <span class="font-bold text-sm text-neutral-800 dark:text-neutral-200"><i class="fas fa-filter mr-1"></i> 历史记录筛选</span>
+                <select id="historyFilter" onchange="window.renderHistory()" class="bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white text-xs font-bold py-1.5 pl-3 pr-8 rounded-lg border border-neutral-300 dark:border-neutral-700 focus:outline-none">
+                    <option value="ALL">全部类型 (All)</option>
                     <option value="222">2x2x2</option>
-
+                    <option value="333">3x3x3</option>
+                    <option value="333oh">3x3x3 (单手)</option>
+                    <option value="333bld">3x3x3 (盲拧)</option>
                     <option value="444">4x4x4</option>
-
+                    <option value="555">5x5x5</option>
+                    <option value="666">6x6x6</option>
+                    <option value="777">7x7x7</option>
+                    <option value="pyram">Pyraminx</option>
+                    <option value="mega">Megaminx</option>
+                    <option value="skewb">Skewb</option>
+                    <option value="sq1">Square-1</option>
+                    <option value="clock">Clock</option>
                 </select>
+            </div>
+            <div id="historyList" class="flex-1 overflow-y-auto p-4 space-y-3">
+                <!-- 计时成绩列表由 JS 注入 -->
+            </div>
+        </main>
 
+        <!-- ================= [3] 社区交流视图 ================= -->
+        <main id="communityView" class="tab-view scrollable-view hidden absolute inset-0 flex flex-col w-full h-full bg-neutral-50 dark:bg-[#0a0a0a] transition-opacity duration-200 z-0 p-4 pb-20 overflow-y-auto">
+            <div class="flex justify-between items-center mb-4 mt-2">
+                <h2 class="text-xl font-bold text-neutral-900 dark:text-white">魔方社区 (Community)</h2>
+            </div>
+            
+            <div class="bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-500 text-[11px] p-3 rounded-xl mb-6 leading-relaxed shadow-sm border border-yellow-200 dark:border-yellow-700/50">
+                <i class="fas fa-shield-alt mr-1"></i> <strong>安全温馨提示：</strong>请勿在此处透露任何个人隐私信息。我们倡导绿色互助的魔方交流环境，请勿发布违规和不良信息。
             </div>
 
-        </div>
-
-
-
-        <!-- Scramble Area -->
-
-        <div class="px-4 mt-1 flex flex-col items-center z-10 shrink-0">
-
-            <!-- Scramble Text -->
-
-            <div id="scrambleDisplay" class="scramble-text text-sm md:text-xl font-medium text-neutral-300 max-w-4xl cursor-pointer hover:text-white transition active:scale-95 mb-2 mt-2" onclick="newScramble()">
-
-                Initializing...
-
+            <!-- 发帖区域 -->
+            <div class="bg-white dark:bg-neutral-900 p-4 rounded-2xl shadow-sm border border-neutral-200 dark:border-neutral-800 mb-6 transition-colors">
+                <textarea id="postContent" rows="3" placeholder="分享你的魔方心得、PB记录或干货技巧（需先登录）..." class="w-full bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white rounded-xl p-3 text-sm border-none focus:ring-2 focus:ring-blue-500 outline-none resize-none"></textarea>
+                <div class="flex flex-col gap-2 mt-3">
+                    <input type="text" id="postImage" placeholder="图片链接 URL (可选)" class="w-full bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white rounded-lg p-2.5 text-xs outline-none focus:ring-1 focus:ring-blue-500">
+                    <input type="text" id="postVideo" placeholder="视频链接 B站/YouTube URL (可选)" class="w-full bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white rounded-lg p-2.5 text-xs outline-none focus:ring-1 focus:ring-blue-500">
+                </div>
+                <div class="flex justify-between items-center mt-4">
+                    <span id="communityPostAlert" class="text-xs text-red-500 font-bold"></span>
+                    <button onclick="window.submitPost()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-xl text-sm shadow-md transition-colors"><i class="fas fa-paper-plane mr-1"></i> 发布心得</button>
+                </div>
             </div>
 
+            <div id="postsFeed" class="space-y-4">
+                <div class="text-center text-neutral-400 text-sm py-10"><i class="fas fa-circle-notch fa-spin mr-2"></i>正在加载社区内容...</div>
+            </div>
+        </main>
 
-
-            <!-- Scramble Visualization (SVG) -->
-
-            <div id="visualizer" class="w-full flex justify-center items-center h-[160px] md:h-[200px] transition-opacity duration-300 opacity-0">
-
-                <!-- SVG injected by JS -->
-
+        <!-- ================= [4] CFOP 教程视图 ================= -->
+        <main id="tutorialView" class="tab-view flex flex-col hidden absolute inset-0 w-full h-full bg-neutral-50 dark:bg-[#0a0a0a] transition-opacity duration-200 z-0 p-4 pb-16 overflow-hidden">
+            <div class="shrink-0 mb-3">
+                <h2 class="text-xl font-bold text-neutral-900 dark:text-white mb-1">CFOP 高级还原教程</h2>
+                <p class="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed">CFOP 是世界上最流行的三阶魔方高级还原法。分为 Cross(底十字)、F2L(前两层)、OLL(顶层方向) 和 PLL(顶层位置) 四个步骤。</p>
             </div>
 
-        </div>
-
-
-
-        <!-- Timer Display -->
-
-        <div class="flex-1 flex items-center justify-center flex-col z-10 min-h-0">
-
-            <div id="timerDisplay" class="timer-font text-[24vw] md:text-[12rem] lg:text-[14rem] font-bold leading-none timer-idle select-none transition-colors duration-100">
-
-                0.00
-
+            <!-- 子卡片 Tab 切换选择器 -->
+            <div class="flex gap-1.5 mb-3 overflow-x-auto pb-1.5 border-b border-neutral-200 dark:border-neutral-800 shrink-0 scrollable-view">
+                <button onclick="window.switchTutorialTab('cross')" id="tutTab-cross" class="px-3.5 py-2 text-xs font-bold rounded-xl bg-blue-500 text-white transition-all whitespace-nowrap shadow-sm">C - 底十字</button>
+                <button onclick="window.switchTutorialTab('f2l')" id="tutTab-f2l" class="px-3.5 py-2 text-xs font-bold rounded-xl text-neutral-500 hover:bg-neutral-200/50 dark:hover:bg-neutral-800/50 transition-all whitespace-nowrap">F - 前两层</button>
+                <button onclick="window.switchTutorialTab('oll')" id="tutTab-oll" class="px-3.5 py-2 text-xs font-bold rounded-xl text-neutral-500 hover:bg-neutral-200/50 dark:hover:bg-neutral-800/50 transition-all whitespace-nowrap">O - 顶层方向</button>
+                <button onclick="window.switchTutorialTab('pll')" id="tutTab-pll" class="px-3.5 py-2 text-xs font-bold rounded-xl text-neutral-500 hover:bg-neutral-200/50 dark:hover:bg-neutral-800/50 transition-all whitespace-nowrap">P - 顶层位置</button>
             </div>
 
-            <div id="instruction" class="mt-2 md:mt-4 text-neutral-600 text-[10px] md:text-xs uppercase tracking-wider text-center opacity-60">
-
-                <span class="hidden md:block">Press Space to Start</span>
-
-                <span class="md:hidden">Hold Screen to Start</span>
-
+            <!-- 搜索框 -->
+            <div class="shrink-0 mb-3 hidden" id="tutorialSearchContainer">
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-neutral-400"><i class="fas fa-search text-xs"></i></span>
+                    <input type="text" id="tutorialSearch" placeholder="输入公式名称搜索（如: T / F2L 15 / Sune）..." oninput="window.filterTutorial(this.value)" class="w-full bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white text-xs rounded-xl py-2.5 pl-9 pr-4 outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition shadow-sm">
+                </div>
             </div>
 
-        </div>
+            <!-- 教程内容滚动区 -->
+            <div id="tutorialContent" class="flex-1 overflow-y-auto space-y-3 pb-6 scrollable-view">
+                <!-- 动态内容注入 -->
+            </div>
+        </main>
 
-
-
-        <!-- Footer Stats -->
-
-        <div class="w-full bg-neutral-900/90 backdrop-blur-sm border-t border-neutral-800 p-2 md:p-4 z-20 safe-bottom shrink-0">
-
-            <div class="max-w-4xl mx-auto grid grid-cols-4 gap-2 md:gap-4 text-center">
-
-                <div class="flex flex-col"><span class="text-[10px] text-neutral-500 font-bold">SOLVES</span><span id="statCount" class="text-base font-bold">0</span></div>
-
-                <div class="flex flex-col"><span class="text-[10px] text-neutral-500 font-bold">BEST</span><span id="statBest" class="text-base font-bold text-blue-400">--</span></div>
-
-                <div class="flex flex-col"><span class="text-[10px] text-neutral-500 font-bold">Ao5</span><span id="statAo5" class="text-base font-bold text-yellow-400">--</span></div>
-
-                <div class="flex flex-col"><span class="text-[10px] text-neutral-500 font-bold">Ao12</span><span id="statAo12" class="text-base font-bold text-purple-400">--</span></div>
-
+        <!-- ================= [5] 设置视图 ================= -->
+        <main id="settingsView" class="tab-view scrollable-view hidden absolute inset-0 flex flex-col w-full h-full overflow-y-auto bg-neutral-50 dark:bg-[#0a0a0a] transition-opacity duration-200 z-0 p-4 pb-24">
+            <h2 class="text-xl font-bold text-neutral-900 dark:text-white mb-6 mt-2 ml-2">设置 (Settings)</h2>
+            
+            <!-- 账户与云同步模块 (对接本地后端) -->
+            <div class="bg-white dark:bg-neutral-900 rounded-2xl shadow-sm border border-neutral-200 dark:border-neutral-800 overflow-hidden mb-6 transition-colors">
+                <div class="p-4 border-b border-neutral-100 dark:border-neutral-800 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-blue-100 dark:bg-blue-500/20 p-2 rounded-lg text-blue-500"><i class="fas fa-user w-5 text-center"></i></div>
+                        <div>
+                            <div class="font-bold text-neutral-800 dark:text-neutral-200 text-sm">云端成绩同步账户</div>
+                            <div class="text-[10px] text-neutral-500 mt-0.5" id="settingNicknameDisplay">未登录，点击登录以同步</div>
+                        </div>
+                    </div>
+                    <div id="accountActionArea">
+                        <button onclick="window.showAuthModal()" class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md transition-colors">登录 / 注册</button>
+                    </div>
+                </div>
+                <div class="p-4 flex flex-col gap-3" id="syncActionArea">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-neutral-700 dark:text-neutral-300"><i class="fas fa-sync-alt mr-1 animate-spin-slow"></i> 云端成绩备份与合并</span>
+                        <button onclick="window.syncData()" id="syncBtn" class="bg-green-500 hover:bg-green-600 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md transition-colors disabled:opacity-50" disabled>立即同步</button>
+                    </div>
+                </div>
             </div>
 
-        </div>
-
-    </main>
-
-
-
-    <!-- History Sidebar -->
-
-    <div class="bg-neutral-950 border-t border-neutral-800 h-32 md:h-56 flex flex-col shrink-0">
-
-        <div class="px-4 py-2 bg-neutral-900 flex justify-between items-center border-b border-neutral-800">
-
-            <span class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">HISTORY</span>
-
-        </div>
-
-        <div id="historyList" class="flex-1 overflow-y-auto p-2 grid grid-cols-2 lg:grid-cols-4 gap-2 content-start"></div>
-
+            <!-- 主题风格设置 -->
+            <div class="bg-white dark:bg-neutral-900 rounded-2xl shadow-sm border border-neutral-200 dark:border-neutral-800 overflow-hidden transition-colors">
+                <div class="p-4 flex justify-between items-center border-b border-neutral-100 dark:border-neutral-800">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-purple-100 dark:bg-purple-500/20 p-2 rounded-lg text-purple-500"><i class="fas fa-paint-brush w-5 text-center"></i></div>
+                        <span class="font-bold text-neutral-800 dark:text-neutral-200">应用风格配色</span>
+                    </div>
+                    <select id="appThemeSelect" onchange="window.changeAppTheme()" class="bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white text-xs font-bold py-1.5 pl-3 pr-8 rounded-lg border border-neutral-300 dark:border-neutral-700 focus:outline-none w-36 cursor-pointer">
+                        <option value="minimal">简洁黑白</option>
+                        <option value="cyberpunk">赛博朋克</option>
+                        <option value="emerald">翡翠森林 (绿)</option>
+                        <option value="sakura">浪漫樱花 (粉)</option>
+                        <option value="ocean">静谧深海 (蓝)</option>
+                        <option value="nord">北欧极光 (灰蓝)</option>
+                        <option value="sunset">温暖落日 (黄)</option>
+                    </select>
+                </div>
+                <div class="p-4 flex justify-between items-center border-b border-neutral-100 dark:border-neutral-800">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-blue-100 dark:bg-blue-500/20 p-2 rounded-lg text-blue-500"><i class="fas fa-stopwatch w-5 text-center"></i></div>
+                        <span class="font-bold text-neutral-800 dark:text-neutral-200">计时显示精度</span>
+                    </div>
+                    <select id="timerPrecisionSelect" onchange="window.changeTimerPrecision()" class="bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white text-xs font-bold py-1.5 pl-3 pr-8 rounded-lg border border-neutral-300 dark:border-neutral-700 focus:outline-none w-36 cursor-pointer">
+                        <option value="2">0.00 (两位)</option>
+                        <option value="3">0.000 (三位)</option>
+                    </select>
+                </div>
+                <div class="p-4 flex justify-between items-center border-b border-neutral-100 dark:border-neutral-800">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-yellow-100 dark:bg-yellow-500/20 p-2 rounded-lg text-yellow-500"><i class="fas fa-moon w-5 text-center"></i></div>
+                        <span class="font-bold text-neutral-800 dark:text-neutral-200">深色模式 (Dark Mode)</span>
+                    </div>
+                    <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+                        <input type="checkbox" name="toggle" id="themeToggle" onchange="window.toggleTheme()" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer z-10 transition-all duration-300" checked/>
+                        <label for="themeToggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-neutral-300 dark:bg-blue-500 cursor-pointer transition-colors duration-300"></label>
+                    </div>
+                </div>
+                <div class="p-4 flex flex-col gap-1">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-green-100 dark:bg-green-500/20 p-2 rounded-lg text-green-500"><i class="fas fa-info-circle w-5 text-center"></i></div>
+                        <span class="font-bold text-neutral-800 dark:text-neutral-200">关于 Cube Timer Pro</span>
+                    </div>
+                    <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-2 ml-11 leading-relaxed">
+                        专为魔方爱好者量身打造的高效计时工具。内置 WCA 标准打乱算法、多色彩高端主题切换、本地 Express 接口无缝账密同步，支持 3D SVG 视图渲染及 `twisty-player` 交互式视图，助您轻松打出好成绩！
+                    </p>
+                </div>
+            </div>
+        </main>
     </div>
 
+    <!-- 底部导航栏 (Bottom Navbar) -->
+    <nav class="bg-white dark:bg-neutral-900 border-t border-neutral-200 dark:border-neutral-800 h-16 shrink-0 safe-bottom flex justify-between items-center px-2 md:px-6 z-40 transition-colors shadow-[0_-4px_15px_rgba(0,0,0,0.03)] dark:shadow-[0_-4px_20px_rgba(0,0,0,0.5)]">
+        <button id="nav-timer" onclick="window.switchTab('timer')" class="nav-btn flex-1 flex flex-col items-center justify-center h-full text-blue-500 transition-colors">
+            <i class="fas fa-stopwatch text-[18px] mb-1"></i><span class="text-[9px] font-bold mt-1">计时</span>
+        </button>
+        <button id="nav-history" onclick="window.switchTab('history')" class="nav-btn flex-1 flex flex-col items-center justify-center h-full text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 transition-colors">
+            <i class="fas fa-list text-[18px] mb-1"></i><span class="text-[9px] font-bold mt-1">记录</span>
+        </button>
+        <button id="nav-community" onclick="window.switchTab('community')" class="nav-btn flex-1 flex flex-col items-center justify-center h-full text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 transition-colors">
+            <i class="fas fa-users text-[18px] mb-1"></i><span class="text-[9px] font-bold mt-1">社区</span>
+        </button>
+        <button id="nav-tutorial" onclick="window.switchTab('tutorial')" class="nav-btn flex-1 flex flex-col items-center justify-center h-full text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 transition-colors">
+            <i class="fas fa-graduation-cap text-[18px] mb-1"></i><span class="text-[9px] font-bold mt-1">教程</span>
+        </button>
+        <button id="nav-settings" onclick="window.switchTab('settings')" class="nav-btn flex-1 flex flex-col items-center justify-center h-full text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 transition-colors">
+            <i class="fas fa-cog text-[18px] mb-1"></i><span class="text-[9px] font-bold mt-1">设置</span>
+        </button>
+    </nav>
 
+    <!-- ================= 登录与注册 Modal ================= -->
+    <div id="authModal" class="hidden fixed inset-0 bg-black/60 dark:bg-black/85 z-50 flex items-center justify-center p-4 backdrop-blur-sm" style="touch-action: auto;">
+        <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-3xl p-6 w-full max-w-sm shadow-2xl transition-all duration-300 transform scale-95 opacity-0" id="authBox">
+            
+            <!-- Tab 切换 -->
+            <div class="flex border-b border-neutral-100 dark:border-neutral-800 mb-6">
+                <button onclick="window.switchAuthTab('login')" id="authTabLogin" class="flex-1 pb-3 text-sm font-bold text-center border-b-2 border-blue-500 text-blue-500">密码登录</button>
+                <button onclick="window.switchAuthTab('register')" id="authTabRegister" class="flex-1 pb-3 text-sm font-bold text-center border-b-2 border-transparent text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200">账号注册</button>
+            </div>
 
-    <!-- Scripts -->
+            <!-- 登录 Form -->
+            <div id="authLoginForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-neutral-500 mb-1">账号用户名 (Username)</label>
+                    <input type="text" id="loginUsername" placeholder="请输入您的账号..." class="w-full bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 border border-neutral-200 dark:border-neutral-700">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-neutral-500 mb-1">登录密码 (Password)</label>
+                    <input type="password" id="loginPassword" placeholder="请输入您的密码..." class="w-full bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 border border-neutral-200 dark:border-neutral-700">
+                </div>
+            </div>
+
+            <!-- 注册 Form -->
+            <div id="authRegisterForm" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-xs font-bold text-neutral-500 mb-1">注册账号 (Username)</label>
+                    <input type="text" id="registerUsername" placeholder="英文或数字，用于登录..." class="w-full bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 border border-neutral-200 dark:border-neutral-700">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-neutral-500 mb-1">社区昵称 (Nickname)</label>
+                    <input type="text" id="registerNickname" placeholder="显示在社区的昵称，例如：魔王" class="w-full bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 border border-neutral-200 dark:border-neutral-700">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-neutral-500 mb-1">登录密码 (Password)</label>
+                    <input type="password" id="registerPassword" placeholder="设置您的登录密码..." class="w-full bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 border border-neutral-200 dark:border-neutral-700">
+                </div>
+            </div>
+
+            <!-- 提示语 -->
+            <div id="authAlert" class="text-xs text-red-500 font-bold mt-4 text-center min-h-[16px]"></div>
+
+            <!-- 动作按钮 -->
+            <div class="flex gap-3 mt-6">
+                <button onclick="window.closeAuthModal()" class="flex-1 bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 font-bold py-3 rounded-xl text-sm transition-colors">取消</button>
+                <button onclick="window.submitAuth()" id="authSubmitBtn" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-xl text-sm shadow-lg shadow-blue-500/25 transition-colors">确认登录</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= 成绩结算 Modal ================= -->
+    <div id="penaltyModal" class="hidden fixed inset-0 bg-black/60 dark:bg-black/85 z-50 flex items-center justify-center p-4 backdrop-blur-sm" style="touch-action: auto;">
+        <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-3xl p-6 w-full max-w-xs shadow-2xl transform transition-all scale-95 opacity-0 duration-200" id="penaltyBox">
+            <h3 class="text-neutral-500 dark:text-neutral-400 text-xs font-bold uppercase tracking-widest text-center mb-1">本次成绩 (Solve Time)</h3>
+            <div class="text-5xl timer-font font-black text-neutral-900 dark:text-white text-center mb-4 tracking-tight" id="penaltyTimeDisplay">0.00</div>
+            
+            <div id="suspiciousWarning" class="hidden bg-yellow-100 dark:bg-yellow-500/10 text-yellow-600 dark:text-yellow-500 text-xs font-bold p-3 rounded-xl mb-5 text-center border border-yellow-200 dark:border-yellow-500/30">
+                <i class="fas fa-exclamation-triangle mr-1"></i> 成绩异常快，确定保留吗？
+            </div>
+
+            <div class="space-y-3 mt-4">
+                <button onclick="window.confirmSolve('OK')" class="w-full bg-green-500 dark:bg-green-600 active:bg-green-600 dark:active:bg-green-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-green-500/30 text-sm tracking-wide transition-colors">保留无惩罚 (OK)</button>
+                <div class="flex gap-3">
+                    <button onclick="window.confirmSolve('+2')" class="flex-1 bg-yellow-500 dark:bg-yellow-600 active:bg-yellow-600 dark:active:bg-yellow-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-yellow-500/30 text-sm tracking-wide transition-colors">+2 秒</button>
+                    <button onclick="window.confirmSolve('DNF')" class="flex-1 bg-red-500 dark:bg-red-600 active:bg-red-600 dark:active:bg-red-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-red-500/30 text-sm tracking-wide transition-colors">DNF 废弃</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= 赛博朋克 PB 全屏动画 ================= -->
+    <div id="cyberpunkPB" class="hidden fixed inset-0 z-[100] cyberpunk-bg flex flex-col items-center justify-center overflow-hidden cursor-pointer transition-opacity duration-300" onclick="window.closePB()">
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPjxyZWN0IHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSIvPjwvc3ZnPg==')] opacity-30 pointer-events-none"></div>
+        <h1 class="glitch-text text-7xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 mb-2 drop-shadow-[0_0_15px_rgba(255,0,193,0.5)]" data-text="NEW PB!">NEW PB!</h1>
+        <div class="text-xl md:text-3xl font-black text-pink-400 uppercase tracking-[0.3em] mb-6 drop-shadow-[0_0_10px_rgba(255,0,193,0.8)]" id="cyberpunkType">3x3x3 Cube</div>
+        <div class="timer-font text-6xl md:text-9xl font-bold text-cyan-300 drop-shadow-[0_0_25px_rgba(34,211,238,0.8)] tracking-tighter" id="cyberpunkTime">0.00</div>
+        <div class="mt-12 px-6 py-2 border border-pink-500/50 text-pink-400 text-xs font-bold uppercase tracking-[0.4em] rounded-full animate-pulse shadow-[0_0_15px_rgba(255,0,193,0.3)] bg-pink-500/10">点击任意区域关闭</div>
+    </div>
+
+    <!-- ================= 简洁风 PB 全屏动画 ================= -->
+    <div id="minimalPB" class="hidden fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white/95 dark:bg-black/95 backdrop-blur-md cursor-pointer transition-opacity duration-300" onclick="window.closePB()">
+        <i class="fas fa-crown text-6xl text-yellow-400 mb-6 drop-shadow-md animate-bounce"></i>
+        <h1 class="text-4xl md:text-6xl font-black minimal-pb-title mb-2 text-center px-4">NEW PB!</h1>
+        <div class="text-lg md:text-2xl font-bold text-neutral-500 dark:text-neutral-400 mb-8 uppercase tracking-[0.2em]" id="minimalType">3x3x3 Cube</div>
+        <div class="timer-font text-7xl md:text-9xl font-bold text-neutral-900 dark:text-white tracking-tighter drop-shadow-lg" id="minimalTime">0.00</div>
+        <div class="mt-16 px-6 py-2 border border-neutral-300 dark:border-neutral-700 text-neutral-500 text-xs font-bold uppercase tracking-[0.2em] rounded-full animate-pulse">点击任意区域关闭</div>
+    </div>
+
+    <!-- 教程中魔方小图格子辅助样式 (已写在 css 中) -->
+    <!-- 引入核心 JS 代码 -->
+    <script src="cfop_data.js"></script>
+    <script src="AnimCube3.js"></script>
     <script src="app.js"></script>
 </body>
-
 </html>
