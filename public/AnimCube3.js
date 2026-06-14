@@ -266,7 +266,7 @@ function AnimCube3(params) {
       }
     }
     // clean the cube
-    var defaultColorScheme = [11, 10, 14, 15, 12, 13]; // U=Y(11), D=W(10), F=G(14), B=B(15), L=O(12), R=R(13)
+    var defaultColorScheme = [11, 10, 14, 15, 13, 12]; // U=Y(11), D=W(10), F=G(14), B=B(15), L=R(13), R=O(12)
     for (var i = 0; i < 6; i++)
       for (var j = 0; j < 9; j++)
         cube[i][j] = defaultColorScheme[i];

@@ -129,31 +129,6 @@
             </div>
         </main>
 
-        <!-- ================= [3] 社区交流视图 ================= -->
-        <main id="communityView" class="tab-view scrollable-view hidden absolute inset-0 flex flex-col w-full h-full bg-neutral-50 dark:bg-[#0a0a0a] transition-opacity duration-200 z-0 p-4 pb-20 overflow-y-auto">
-            <div class="flex justify-between items-center mb-4 mt-2">
-                <h2 class="text-xl font-bold text-neutral-900 dark:text-white">魔方社区 (Community)</h2>
-            </div>
-            
-            <div class="bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-500 text-[11px] p-3 rounded-xl mb-6 leading-relaxed shadow-sm border border-yellow-200 dark:border-yellow-700/50">
-                <i class="fas fa-shield-alt mr-1"></i> <strong>安全温馨提示：</strong>请勿在此处透露任何个人隐私信息。我们倡导绿色互助的魔方交流环境，请勿发布违规和不良信息。
-            </div>
-
-            <!-- 发帖区域 -->
-            <div class="bg-white dark:bg-neutral-900 p-4 rounded-2xl shadow-sm border border-neutral-200 dark:border-neutral-800 mb-6 transition-colors">
-                <textarea id="postContent" rows="3" placeholder="分享你的魔方心得、PB记录或干货技巧（需先登录）..." class="w-full bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white rounded-xl p-3 text-sm border-none focus:ring-2 focus:ring-blue-500 outline-none resize-none"></textarea>
-                <div class="flex flex-col gap-2 mt-3">
-                    <input type="text" id="postImage" placeholder="图片链接 URL (可选)" class="w-full bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white rounded-lg p-2.5 text-xs outline-none focus:ring-1 focus:ring-blue-500">
-                    <input type="text" id="postVideo" placeholder="视频链接 B站/YouTube URL (可选)" class="w-full bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white rounded-lg p-2.5 text-xs outline-none focus:ring-1 focus:ring-blue-500">
-                </div>
-                <div class="flex justify-between items-center mt-4">
-                    <span id="communityPostAlert" class="text-xs text-red-500 font-bold"></span>
-                    <button onclick="window.submitPost()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-xl text-sm shadow-md transition-colors"><i class="fas fa-paper-plane mr-1"></i> 发布心得</button>
-                </div>
-            </div>
-
-            <div id="postsFeed" class="space-y-4">
-                <div class="text-center text-neutral-400 text-sm py-10"><i class="fas fa-circle-notch fa-spin mr-2"></i>正在加载社区内容...</div>
             </div>
         </main>
 
@@ -203,27 +178,7 @@
         <main id="settingsView" class="tab-view scrollable-view hidden absolute inset-0 flex flex-col w-full h-full overflow-y-auto bg-neutral-50 dark:bg-[#0a0a0a] transition-opacity duration-200 z-0 p-4 pb-24">
             <h2 class="text-xl font-bold text-neutral-900 dark:text-white mb-6 mt-2 ml-2">设置 (Settings)</h2>
             
-            <!-- 账户与云同步模块 (对接本地后端) -->
-            <div class="bg-white dark:bg-neutral-900 rounded-2xl shadow-sm border border-neutral-200 dark:border-neutral-800 overflow-hidden mb-6 transition-colors">
-                <div class="p-4 border-b border-neutral-100 dark:border-neutral-800 flex justify-between items-center">
-                    <div class="flex items-center gap-3">
-                        <div class="bg-blue-100 dark:bg-blue-500/20 p-2 rounded-lg text-blue-500"><i class="fas fa-user w-5 text-center"></i></div>
-                        <div>
-                            <div class="font-bold text-neutral-800 dark:text-neutral-200 text-sm">云端成绩同步账户</div>
-                            <div class="text-[10px] text-neutral-500 mt-0.5" id="settingNicknameDisplay">未登录，点击登录以同步</div>
-                        </div>
-                    </div>
-                    <div id="accountActionArea">
-                        <button onclick="window.showAuthModal()" class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md transition-colors">登录 / 注册</button>
-                    </div>
-                </div>
-                <div class="p-4 flex flex-col gap-3" id="syncActionArea">
-                    <div class="flex justify-between items-center">
-                        <span class="text-xs font-bold text-neutral-700 dark:text-neutral-300"><i class="fas fa-sync-alt mr-1 animate-spin-slow"></i> 云端成绩备份与合并</span>
-                        <button onclick="window.syncData()" id="syncBtn" class="bg-green-500 hover:bg-green-600 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md transition-colors disabled:opacity-50" disabled>立即同步</button>
-                    </div>
-                </div>
-            </div>
+
 
             <!-- 蓝牙智能硬件连接 -->
             <div class="bg-white dark:bg-neutral-900 rounded-2xl shadow-sm border border-neutral-200 dark:border-neutral-800 overflow-hidden mb-6 transition-colors">
@@ -327,9 +282,7 @@
         <button id="nav-history" onclick="window.switchTab('history')" class="nav-btn flex-1 flex flex-col items-center justify-center h-full text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 transition-colors">
             <i class="fas fa-list text-[18px] mb-1"></i><span class="text-[9px] font-bold mt-1">记录</span>
         </button>
-        <button id="nav-community" onclick="window.switchTab('community')" class="nav-btn flex-1 flex flex-col items-center justify-center h-full text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 transition-colors">
-            <i class="fas fa-users text-[18px] mb-1"></i><span class="text-[9px] font-bold mt-1">社区</span>
-        </button>
+
         <button id="nav-tutorial" onclick="window.switchTab('tutorial')" class="nav-btn flex-1 flex flex-col items-center justify-center h-full text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 transition-colors">
             <i class="fas fa-graduation-cap text-[18px] mb-1"></i><span class="text-[9px] font-bold mt-1">教程</span>
         </button>
@@ -338,54 +291,7 @@
         </button>
     </nav>
 
-    <!-- ================= 登录与注册 Modal ================= -->
-    <div id="authModal" class="hidden fixed inset-0 bg-black/60 dark:bg-black/85 z-50 flex items-center justify-center p-4 backdrop-blur-sm" style="touch-action: auto;">
-        <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-3xl p-6 w-full max-w-sm shadow-2xl transition-all duration-300 transform scale-95 opacity-0" id="authBox">
-            
-            <!-- Tab 切换 -->
-            <div class="flex border-b border-neutral-100 dark:border-neutral-800 mb-6">
-                <button onclick="window.switchAuthTab('login')" id="authTabLogin" class="flex-1 pb-3 text-sm font-bold text-center border-b-2 border-blue-500 text-blue-500">密码登录</button>
-                <button onclick="window.switchAuthTab('register')" id="authTabRegister" class="flex-1 pb-3 text-sm font-bold text-center border-b-2 border-transparent text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200">账号注册</button>
-            </div>
 
-            <!-- 登录 Form -->
-            <div id="authLoginForm" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-neutral-500 mb-1">账号用户名 (Username)</label>
-                    <input type="text" id="loginUsername" placeholder="请输入您的账号..." class="w-full bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 border border-neutral-200 dark:border-neutral-700">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-neutral-500 mb-1">登录密码 (Password)</label>
-                    <input type="password" id="loginPassword" placeholder="请输入您的密码..." class="w-full bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 border border-neutral-200 dark:border-neutral-700">
-                </div>
-            </div>
-
-            <!-- 注册 Form -->
-            <div id="authRegisterForm" class="space-y-4 hidden">
-                <div>
-                    <label class="block text-xs font-bold text-neutral-500 mb-1">注册账号 (Username)</label>
-                    <input type="text" id="registerUsername" placeholder="英文或数字，用于登录..." class="w-full bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 border border-neutral-200 dark:border-neutral-700">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-neutral-500 mb-1">社区昵称 (Nickname)</label>
-                    <input type="text" id="registerNickname" placeholder="显示在社区的昵称，例如：魔王" class="w-full bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 border border-neutral-200 dark:border-neutral-700">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-neutral-500 mb-1">登录密码 (Password)</label>
-                    <input type="password" id="registerPassword" placeholder="设置您的登录密码..." class="w-full bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 border border-neutral-200 dark:border-neutral-700">
-                </div>
-            </div>
-
-            <!-- 提示语 -->
-            <div id="authAlert" class="text-xs text-red-500 font-bold mt-4 text-center min-h-[16px]"></div>
-
-            <!-- 动作按钮 -->
-            <div class="flex gap-3 mt-6">
-                <button onclick="window.closeAuthModal()" class="flex-1 bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 font-bold py-3 rounded-xl text-sm transition-colors">取消</button>
-                <button onclick="window.submitAuth()" id="authSubmitBtn" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-xl text-sm shadow-lg shadow-blue-500/25 transition-colors">确认登录</button>
-            </div>
-        </div>
-    </div>
 
     <!-- ================= 成绩结算 Modal ================= -->
     <div id="penaltyModal" class="hidden fixed inset-0 bg-black/60 dark:bg-black/85 z-50 flex items-center justify-center p-4 backdrop-blur-sm" style="touch-action: auto;">

@@ -8,14 +8,13 @@ let holdingTimeout = null;
 let solves = []; // 内存中的成绩列表
 let wakeLock = null;
 let currentSolveTime = 0;
-let currentAuthTab = 'login'; // login, register
 let timerPrecision = localStorage.getItem('cubeTimerPrecision') || '2';
 let cubeAnimSpeed = parseInt(localStorage.getItem('cubeAnimSpeed')) || 22;
 let connectedCube = null;
 let connectedTimer = null;
 let bluetoothCubeState = null;
 
-const API_BASE = '/api';
+
 
 const SUSPICIOUS_THRESHOLDS = { 
     '222': 500, '333': 4000, '333oh': 4000, '333bld': 8000,
@@ -31,8 +30,7 @@ const PUZZLE_NAMES = {
 
 // ================= DOM 元素引用 =================
 let elTimer, elScramble, elVisualizer, elSelect, elInstruction, elTopControls;
-let elAuthModal, elAuthBox, elAuthAlert, elAuthSubmitBtn;
-let elSettingNicknameDisplay, elAccountActionArea, elSyncBtn;
+
 
 // ================= 初始化入口 =================
 window.addEventListener('DOMContentLoaded', () => {
@@ -44,13 +42,7 @@ window.addEventListener('DOMContentLoaded', () => {
     elInstruction = document.getElementById('instruction');
     elTopControls = document.getElementById('topControls');
     
-    elAuthModal = document.getElementById('authModal');
-    elAuthBox = document.getElementById('authBox');
-    elAuthAlert = document.getElementById('authAlert');
-    elAuthSubmitBtn = document.getElementById('authSubmitBtn');
-    elSettingNicknameDisplay = document.getElementById('settingNicknameDisplay');
-    elAccountActionArea = document.getElementById('accountActionArea');
-    elSyncBtn = document.getElementById('syncBtn');
+
 
     // 绑定触摸区域计时器操作
     const timerView = document.getElementById('timerView');
@@ -70,11 +62,9 @@ window.addEventListener('DOMContentLoaded', () => {
     initTimerPrecision();
     initCubeAnimSpeed();
     
-    // 初始化登录状态并加载历史数据
-    checkLoginStatus().then(() => {
-        loadHistory();
-        newScramble();
-    });
+    // 加载历史数据
+    loadHistory();
+    newScramble();
     
     // 监听键盘空格
     document.addEventListener('keydown', e => { 
@@ -89,208 +79,7 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// ================= API 请求公共模块（支持降级） =================
-async function apiRequest(endpoint, options = {}) {
-    const token = localStorage.getItem('cubeToken');
-    const headers = {
-        'Content-Type': 'application/json',
-        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
-        ...options.headers
-    };
-    
-    try {
-        const response = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
-        if (response.status === 401 || response.status === 403) {
-            handleLogout();
-            throw new Error('登录失效，请重新登录');
-        }
-        return await response.json();
-    } catch (err) {
-        console.warn(`接口请求失败 [${endpoint}]:`, err.message);
-        throw err;
-    }
-}
 
-// ================= 用户认证与同步逻辑 =================
-
-// 检查登录状态并渲染 UI
-async function checkLoginStatus() {
-    const token = localStorage.getItem('cubeToken');
-    const nickname = localStorage.getItem('cubeNickname');
-    const username = localStorage.getItem('cubeUsername');
-
-    if (token && nickname) {
-        elSettingNicknameDisplay.innerText = `已登录: ${nickname} (${username})`;
-        elAccountActionArea.innerHTML = `<button onclick="window.handleLogout()" class="bg-red-500 hover:bg-red-600 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md transition-colors">退出登录</button>`;
-        elSyncBtn.disabled = false;
-        return true;
-    } else {
-        elSettingNicknameDisplay.innerText = '未登录，同步服务不可用';
-        elAccountActionArea.innerHTML = `<button onclick="window.showAuthModal()" class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md transition-colors">登录 / 注册</button>`;
-        elSyncBtn.disabled = true;
-        return false;
-    }
-}
-
-// 展开登录/注册模态框
-function showAuthModal() {
-    elAuthAlert.innerText = '';
-    elAuthModal.classList.remove('hidden');
-    setTimeout(() => elAuthBox.classList.remove('scale-95', 'opacity-0'), 10);
-    switchAuthTab('login');
-}
-
-function closeAuthModal() {
-    elAuthBox.classList.add('scale-95', 'opacity-0');
-    setTimeout(() => elAuthModal.classList.add('hidden'), 200);
-}
-
-// 切换登录/注册卡片页
-function switchAuthTab(tab) {
-    currentAuthTab = tab;
-    elAuthAlert.innerText = '';
-    const tabLogin = document.getElementById('authTabLogin');
-    const tabRegister = document.getElementById('authTabRegister');
-    const formLogin = document.getElementById('authLoginForm');
-    const formRegister = document.getElementById('authRegisterForm');
-
-    if (tab === 'login') {
-        tabLogin.className = 'flex-1 pb-3 text-sm font-bold text-center border-b-2 border-blue-500 text-blue-500';
-        tabRegister.className = 'flex-1 pb-3 text-sm font-bold text-center border-b-2 border-transparent text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200';
-        formLogin.classList.remove('hidden');
-        formRegister.classList.add('hidden');
-        elAuthSubmitBtn.innerText = '确认登录';
-    } else {
-        tabRegister.className = 'flex-1 pb-3 text-sm font-bold text-center border-b-2 border-blue-500 text-blue-500';
-        tabLogin.className = 'flex-1 pb-3 text-sm font-bold text-center border-b-2 border-transparent text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200';
-        formRegister.classList.remove('hidden');
-        formLogin.classList.add('hidden');
-        elAuthSubmitBtn.innerText = '立即注册';
-    }
-}
-
-// 登录/注册提交
-async function submitAuth() {
-    elAuthAlert.innerText = '';
-    
-    if (currentAuthTab === 'login') {
-        const u = document.getElementById('loginUsername').value.trim();
-        const p = document.getElementById('loginPassword').value;
-
-        if (!u || !p) {
-            elAuthAlert.innerText = '请填写账号和密码';
-            return;
-        }
-
-        try {
-            elAuthSubmitBtn.disabled = true;
-            elAuthSubmitBtn.innerText = '登录中...';
-            const res = await apiRequest('/login', {
-                method: 'POST',
-                body: JSON.stringify({ username: u, password: p })
-            });
-
-            if (res.success) {
-                localStorage.setItem('cubeToken', res.token);
-                localStorage.setItem('cubeNickname', res.user.nickname);
-                localStorage.setItem('cubeUsername', res.user.username);
-                closeAuthModal();
-                await checkLoginStatus();
-                // 登录成功后，立即拉取服务器数据进行合并
-                await syncData();
-            } else {
-                elAuthAlert.innerText = res.message || '登录失败';
-            }
-        } catch (err) {
-            elAuthAlert.innerText = '连接本地服务器失败，请确保后端已启动';
-        } finally {
-            elAuthSubmitBtn.disabled = false;
-            elAuthSubmitBtn.innerText = '确认登录';
-        }
-    } else {
-        const u = document.getElementById('registerUsername').value.trim();
-        const n = document.getElementById('registerNickname').value.trim();
-        const p = document.getElementById('registerPassword').value;
-
-        if (!u || !n || !p) {
-            elAuthAlert.innerText = '请填全注册信息';
-            return;
-        }
-
-        try {
-            elAuthSubmitBtn.disabled = true;
-            elAuthSubmitBtn.innerText = '注册中...';
-            const res = await apiRequest('/register', {
-                method: 'POST',
-                body: JSON.stringify({ username: u, password: p, nickname: n })
-            });
-
-            if (res.success) {
-                elAuthAlert.className = 'text-xs text-green-500 font-bold mt-4 text-center';
-                elAuthAlert.innerText = '注册成功！正在切回登录页...';
-                setTimeout(() => {
-                    elAuthAlert.className = 'text-xs text-red-500 font-bold mt-4 text-center';
-                    switchAuthTab('login');
-                    document.getElementById('loginUsername').value = u;
-                }, 1500);
-            } else {
-                elAuthAlert.innerText = res.message || '注册失败';
-            }
-        } catch (err) {
-            elAuthAlert.innerText = '连接本地服务器失败';
-        } finally {
-            elAuthSubmitBtn.disabled = false;
-            elAuthSubmitBtn.innerText = '立即注册';
-        }
-    }
-}
-
-// 退出登录
-function handleLogout() {
-    localStorage.removeItem('cubeToken');
-    localStorage.removeItem('cubeNickname');
-    localStorage.removeItem('cubeUsername');
-    checkLoginStatus();
-    loadHistory(); // 重新加载本地单机历史
-}
-
-// 手动或自动双向同步
-async function syncData() {
-    const token = localStorage.getItem('cubeToken');
-    if (!token) return;
-
-    elSyncBtn.disabled = true;
-    elSyncBtn.innerText = '同步中...';
-
-    try {
-        // 将本地 localStorage 中的所有成绩传给服务器进行双向去重合并
-        const localSolves = JSON.parse(localStorage.getItem('cubeSolvesPro') || '[]');
-        const res = await apiRequest('/solves/sync', {
-            method: 'POST',
-            body: JSON.stringify({ solves: localSolves })
-        });
-
-        if (res.success && res.solves) {
-            solves = res.solves;
-            localStorage.setItem('cubeSolvesPro', JSON.stringify(solves));
-            renderHistory();
-            updateStats();
-            elSyncBtn.innerText = '同步成功';
-            setTimeout(() => {
-                elSyncBtn.disabled = false;
-                elSyncBtn.innerText = '立即同步';
-            }, 2000);
-        } else {
-            throw new Error(res.message);
-        }
-    } catch (err) {
-        elSyncBtn.innerText = '同步失败';
-        setTimeout(() => {
-            elSyncBtn.disabled = false;
-            elSyncBtn.innerText = '立即同步';
-        }, 2000);
-    }
-}
 
 // ================= Tab 切换及色彩主题管理 =================
 function switchTab(tabId) {
@@ -321,9 +110,7 @@ function switchTab(tabId) {
         document.getElementById('clearBtn').classList.add('hidden'); 
     }
 
-    if (tabId === 'community') {
-        renderCommunity();
-    }
+
     if (tabId === 'tutorial') {
         renderTutorial();
     }
@@ -855,16 +642,7 @@ async function confirmSolve(penalty) {
     // 同步写入本地
     localStorage.setItem('cubeSolvesPro', JSON.stringify(solves));
     
-    // 如果已登录，在后台向本地后端发送新增请求
-    const token = localStorage.getItem('cubeToken');
-    if (token) {
-        apiRequest('/solves', {
-            method: 'POST',
-            body: JSON.stringify(solveObj)
-        }).catch(() => {
-            console.warn('单条成绩后台同步失败，将在下次同步时合并');
-        });
-    }
+
 
     if(!document.getElementById('historyView').classList.contains('hidden')) {
         renderHistory(); 
@@ -911,8 +689,7 @@ function handleDown() {
     if (appState === 'IDLE' && 
         document.getElementById('penaltyModal').classList.contains('hidden') && 
         document.getElementById('cyberpunkPB').classList.contains('hidden') && 
-        document.getElementById('minimalPB').classList.contains('hidden') &&
-        elAuthModal.classList.contains('hidden')) {
+        document.getElementById('minimalPB').classList.contains('hidden')) {
         
         appState = 'HOLDING'; 
         triggerHaptic('hold'); 
@@ -940,24 +717,9 @@ function handleUp() {
 }
 
 // ================= 历史记录与统计渲染 =================
-async function loadHistory() { 
-    const token = localStorage.getItem('cubeToken');
-    if (token) {
-        try {
-            const res = await apiRequest('/solves');
-            if (res.success && res.solves) {
-                solves = res.solves;
-                localStorage.setItem('cubeSolvesPro', JSON.stringify(solves));
-            }
-        } catch (err) {
-            console.warn('从后端拉取历史失败，降级读取本地存储');
-            const d = localStorage.getItem('cubeSolvesPro'); 
-            if (d) solves = JSON.parse(d);
-        }
-    } else {
-        const d = localStorage.getItem('cubeSolvesPro'); 
-        if (d) solves = JSON.parse(d);
-    }
+function loadHistory() { 
+    const d = localStorage.getItem('cubeSolvesPro'); 
+    if (d) solves = JSON.parse(d);
     updateStats(); 
 }
 
@@ -1017,14 +779,7 @@ async function delSolve(id) {
     solves = solves.filter(s => s.id !== id); 
     localStorage.setItem('cubeSolvesPro', JSON.stringify(solves)); 
     
-    const token = localStorage.getItem('cubeToken');
-    if (token) {
-        try {
-            await apiRequest(`/solves/${id}`, { method: 'DELETE' });
-        } catch(err) {
-            console.warn('后端删除同步失败，下次网络连接时将以本地合并为准');
-        }
-    }
+
     
     renderHistory(); 
     updateStats(); 
@@ -1037,14 +792,7 @@ async function clearHistory() {
     solves = []; 
     localStorage.removeItem('cubeSolvesPro'); 
     
-    const token = localStorage.getItem('cubeToken');
-    if (token) {
-        try {
-            await apiRequest('/solves', { method: 'DELETE' });
-        } catch(err) {
-            console.warn('后端清空同步失败');
-        }
-    }
+
     
     renderHistory(); 
     updateStats(); 
@@ -1086,85 +834,7 @@ function parseMedia(url, type) {
     return '';
 }
 
-async function renderCommunity() {
-    const feed = document.getElementById('postsFeed');
-    if(!feed) return; 
-    
-    feed.innerHTML = '<div class="text-center text-neutral-400 text-sm py-10"><i class="fas fa-circle-notch fa-spin mr-2"></i>正在加载社区内容...</div>';
 
-    try {
-        const res = await apiRequest('/posts');
-        if (res.success && res.posts) {
-            feed.innerHTML = '';
-            if (res.posts.length === 0) {
-                feed.innerHTML = '<div class="text-center text-neutral-400 text-sm py-10">暂无心得，快来抢沙发！</div>';
-                return;
-            }
-
-            res.posts.forEach(post => {
-                const date = new Date(post.timestamp);
-                const timeStr = `${date.getMonth()+1}-${date.getDate()} ${date.getHours().toString().padStart(2,'0')}:${date.getMinutes().toString().padStart(2,'0')}`;
-                const el = document.createElement('div');
-                el.className = "bg-white dark:bg-neutral-900 rounded-2xl p-4 shadow-sm border border-neutral-200 dark:border-neutral-800 transition-colors animate-fade-in";
-                el.innerHTML = `
-                    <div class="flex justify-between items-center mb-2">
-                        <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-xs shadow-md">
-                                ${(post.authorNickname || post.author || 'M').charAt(0).toUpperCase()}
-                            </div>
-                            <span class="font-bold text-sm text-neutral-900 dark:text-white">${post.authorNickname || post.author}</span>
-                        </div>
-                        <span class="text-[10px] text-neutral-400 font-mono">${timeStr}</span>
-                    </div>
-                    <p class="text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed whitespace-pre-wrap">${post.content.replace(/</g, "&lt;")}</p>
-                    ${parseMedia(post.imageUrl, 'img')} 
-                    ${parseMedia(post.videoUrl, 'vid')}
-                `;
-                feed.appendChild(el);
-            });
-        }
-    } catch(err) {
-        feed.innerHTML = '<div class="text-center text-red-500 text-sm py-10">加载社区内容失败，请确保本地后端服务器处于运行状态。</div>';
-    }
-}
-
-async function submitPost() {
-    const alertEl = document.getElementById('communityPostAlert');
-    alertEl.innerText = '';
-    
-    const token = localStorage.getItem('cubeToken');
-    if (!token) {
-        alertEl.innerText = '请先登录您的云端账户！';
-        return;
-    }
-
-    const content = document.getElementById('postContent').value.trim();
-    const img = document.getElementById('postImage').value.trim();
-    const vid = document.getElementById('postVideo').value.trim();
-
-    if (!content && !img && !vid) {
-        alertEl.innerText = '内容、图片、视频不能全部为空';
-        return;
-    }
-
-    try {
-        const res = await apiRequest('/posts', {
-            method: 'POST',
-            body: JSON.stringify({ content, imageUrl: img, videoUrl: vid })
-        });
-
-        if (res.success) {
-            document.getElementById('postContent').value = ''; 
-            document.getElementById('postImage').value = ''; 
-            document.getElementById('postVideo').value = '';
-            renderCommunity();
-        } else {
-            alertEl.innerText = res.message || '发布失败';
-        }
-    } catch(err) {
-        alertEl.innerText = '发布失败，无法连接到本地服务器';
-    }
-}
 
 // ================= CFOP 动态教程引擎 =================
 let currentTutorialTab = 'cross';
@@ -1721,8 +1391,7 @@ function handleBluetoothCubeMove(move) {
     if (appState === 'IDLE') {
         if (!document.getElementById('penaltyModal').classList.contains('hidden') ||
             !document.getElementById('cyberpunkPB').classList.contains('hidden') ||
-            !document.getElementById('minimalPB').classList.contains('hidden') ||
-            !elAuthModal.classList.contains('hidden')) {
+            !document.getElementById('minimalPB').classList.contains('hidden')) {
             return;
         }
         
@@ -1925,13 +1594,7 @@ window.renderHistory = renderHistory;
 window.toggleScramble = toggleScramble;
 window.delSolve = delSolve;
 window.clearHistory = clearHistory;
-window.showAuthModal = showAuthModal;
-window.closeAuthModal = closeAuthModal;
-window.switchAuthTab = switchAuthTab;
-window.submitAuth = submitAuth;
-window.handleLogout = handleLogout;
-window.syncData = syncData;
-window.submitPost = submitPost;
+
 window.switchTutorialTab = switchTutorialTab;
 window.renderTutorial = renderTutorial;
 window.filterTutorial = filterTutorial;
