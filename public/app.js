@@ -380,6 +380,9 @@ function initTimerPrecision() {
     if (select) {
         select.value = savedPrecision;
     }
+    if (typeof elTimer !== 'undefined' && elTimer) {
+        elTimer.innerText = formatTime(0);
+    }
 }
 
 function changeTimerPrecision() {
@@ -841,7 +844,7 @@ function handleDown() {
         appState = 'HOLDING'; 
         triggerHaptic('hold'); 
         elTimer.className = 'timer-font text-[22vw] md:text-[12rem] font-bold leading-none timer-holding'; 
-        elTimer.innerText = "0.00";
+        elTimer.innerText = formatTime(0);
         
         holdingTimeout = setTimeout(() => { 
             if (appState === 'HOLDING') { 
