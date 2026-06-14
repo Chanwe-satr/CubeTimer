@@ -406,23 +406,52 @@ function changeTimerPrecision() {
 function initCubeAnimSpeed() {
     const savedSpeed = localStorage.getItem('cubeAnimSpeed') || '22';
     cubeAnimSpeed = parseInt(savedSpeed);
-    const select = document.getElementById('cubeAnimSpeedSelect');
-    if (select) {
-        select.value = savedSpeed;
+    
+    // 同步设置页滑块与数值
+    const selectSettings = document.getElementById('cubeAnimSpeedSelect');
+    if (selectSettings) {
+        selectSettings.value = savedSpeed;
     }
-    const valBadge = document.getElementById('cubeAnimSpeedVal');
-    if (valBadge) {
-        valBadge.innerText = savedSpeed;
+    const valBadgeSettings = document.getElementById('cubeAnimSpeedVal');
+    if (valBadgeSettings) {
+        valBadgeSettings.innerText = savedSpeed;
+    }
+    
+    // 同步教程页滑块与数值
+    const selectTutorial = document.getElementById('cubeAnimSpeedSelectTutorial');
+    if (selectTutorial) {
+        selectTutorial.value = savedSpeed;
+    }
+    const valBadgeTutorial = document.getElementById('cubeAnimSpeedValTutorial');
+    if (valBadgeTutorial) {
+        valBadgeTutorial.innerText = savedSpeed;
     }
 }
 
 function changeCubeAnimSpeed(val) {
     cubeAnimSpeed = parseInt(val);
     localStorage.setItem('cubeAnimSpeed', val);
-    const valBadge = document.getElementById('cubeAnimSpeedVal');
-    if (valBadge) {
-        valBadge.innerText = val;
+    
+    // 同步设置页 UI
+    const valBadgeSettings = document.getElementById('cubeAnimSpeedVal');
+    if (valBadgeSettings) {
+        valBadgeSettings.innerText = val;
     }
+    const selectSettings = document.getElementById('cubeAnimSpeedSelect');
+    if (selectSettings) {
+        selectSettings.value = val;
+    }
+    
+    // 同步教程页 UI
+    const valBadgeTutorial = document.getElementById('cubeAnimSpeedValTutorial');
+    if (valBadgeTutorial) {
+        valBadgeTutorial.innerText = val;
+    }
+    const selectTutorial = document.getElementById('cubeAnimSpeedSelectTutorial');
+    if (selectTutorial) {
+        selectTutorial.value = val;
+    }
+    
     if (expandedFormulaId) {
         const item = findFormulaById(expandedFormulaId);
         if (item) {
@@ -1183,13 +1212,16 @@ function switchTutorialTab(tabId) {
         }
     });
 
-    // 控制搜索栏显隐
+    // 控制搜索栏与速度控制栏显隐
     const searchContainer = document.getElementById('tutorialSearchContainer');
+    const speedController = document.getElementById('tutorialSpeedController');
     if (searchContainer) {
         if (tabId === 'cross') {
             searchContainer.classList.add('hidden');
+            if (speedController) speedController.classList.add('hidden');
         } else {
             searchContainer.classList.remove('hidden');
+            if (speedController) speedController.classList.remove('hidden');
         }
     }
 
@@ -1456,8 +1488,9 @@ function startTutorialAnimCube(formulaId, formulaStr) {
     const isDark = document.documentElement.classList.contains('dark');
     const bgcolorHex = isDark ? '181818' : 'f3f4f6';
 
-    // 组装参数
-    const paramStr = `id=${containerId}&bgcolor=${bgcolorHex}&buttonbar=0&edit=0&repeat=1&speed=${cubeAnimSpeed}&movetext=0&clickprogress=0&initrevmove=#&demo=#&move=${encodeURIComponent(cleanFormula)}`;
+    // 组装参数 (滑块向右增大表示更快，而 AnimCube 速度参数越小表示转动时间越短，所以需要做反向映射)
+    const speedParam = Math.max(2, 48 - cubeAnimSpeed);
+    const paramStr = `id=${containerId}&bgcolor=${bgcolorHex}&buttonbar=0&edit=0&repeat=1&speed=${speedParam}&movetext=0&clickprogress=0&initrevmove=#&demo=#&move=${encodeURIComponent(cleanFormula)}`;
 
     try {
         activeAnimCubeId = containerId;
@@ -1627,7 +1660,11 @@ async function connectBluetoothCube() {
         updateBluetoothUI();
     } catch (err) {
         console.error("连接蓝牙魔方失败:", err);
-        alert("连接蓝牙魔方失败: " + err.message);
+        if (err.message && err.message.includes("Unknown Bluetooth devive")) {
+            alert("连接失败: 暂不支持该型号魔方（如魔域智能魔方等）。\n\n目前由于部分品牌的智能设备采用封闭私有的加密蓝牙协议，不支持任何第三方网页端计时器接入。系统当前仅支持符合 WCA 社区开源协议标准的智能设备（如 GAN 智能魔方、智能计步魔方、Giiker 智能魔方等）。");
+        } else {
+            alert("连接蓝牙魔方失败: " + err.message);
+        }
         connectedCube = null;
         updateBluetoothUI();
     }
@@ -1736,7 +1773,11 @@ async function connectBluetoothTimer() {
         updateBluetoothUI();
     } catch (err) {
         console.error("连接蓝牙计时器失败:", err);
-        alert("连接蓝牙计时器失败: " + err.message);
+        if (err.message && err.message.includes("Unknown Bluetooth devive")) {
+            alert("连接失败: 暂不支持该型号计时器（如魔域智能计时器等）。\n\n目前由于部分品牌（如魔域 AI 智能计时器）采用封闭私有的加密蓝牙协议，不支持任何第三方网页端计时器接入。系统当前仅支持符合 WCA 社区开源协议标准的智能设备（如 GAN 智能计时器）。");
+        } else {
+            alert("连接蓝牙计时器失败: " + err.message);
+        }
         connectedTimer = null;
         updateBluetoothUI();
     }
