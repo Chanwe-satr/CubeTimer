@@ -10,6 +10,10 @@ let wakeLock = null;
 let currentSolveTime = 0;
 let currentAuthTab = 'login'; // login, register
 let timerPrecision = localStorage.getItem('cubeTimerPrecision') || '2';
+let cubeAnimSpeed = parseInt(localStorage.getItem('cubeAnimSpeed')) || 22;
+let connectedCube = null;
+let connectedTimer = null;
+let bluetoothCubeState = null;
 
 const API_BASE = '/api';
 
@@ -64,6 +68,7 @@ window.addEventListener('DOMContentLoaded', () => {
     // 载入主题与设置
     initAppTheme();
     initTimerPrecision();
+    initCubeAnimSpeed();
     
     // 初始化登录状态并加载历史数据
     checkLoginStatus().then(() => {
@@ -398,6 +403,39 @@ function changeTimerPrecision() {
     renderHistory();
 }
 
+function initCubeAnimSpeed() {
+    const savedSpeed = localStorage.getItem('cubeAnimSpeed') || '22';
+    cubeAnimSpeed = parseInt(savedSpeed);
+    const select = document.getElementById('cubeAnimSpeedSelect');
+    if (select) {
+        select.value = savedSpeed;
+    }
+    const valBadge = document.getElementById('cubeAnimSpeedVal');
+    if (valBadge) {
+        valBadge.innerText = savedSpeed;
+    }
+}
+
+function changeCubeAnimSpeed(val) {
+    cubeAnimSpeed = parseInt(val);
+    localStorage.setItem('cubeAnimSpeed', val);
+    const valBadge = document.getElementById('cubeAnimSpeedVal');
+    if (valBadge) {
+        valBadge.innerText = val;
+    }
+    if (expandedFormulaId) {
+        const item = findFormulaById(expandedFormulaId);
+        if (item) {
+            startTutorialAnimCube(item.id, item.formula);
+        }
+    }
+}
+
+function findFormulaById(id) {
+    const list = [...(window.CFOP_F2L || []), ...(window.CFOP_OLL || []), ...(window.CFOP_PLL || [])];
+    return list.find(x => x.id === id);
+}
+
 // ================= WCA SVG 离线魔方渲染引擎 (2x2-7x7) =================
 const COLORS = { U: 'c-w', R: 'c-r', F: 'c-g', D: 'c-y', L: 'c-o', B: 'c-b' };
 function getSolvedState(size) { 
@@ -722,9 +760,15 @@ function startTimer() {
     timerStart = Date.now(); 
     elTimer.className = 'timer-font text-[22vw] md:text-[12rem] font-bold leading-none timer-running'; 
     elInstruction.style.display = 'none'; 
-    elVisualizer.style.opacity = '0'; 
-    elTopControls.style.opacity = '0'; 
-    elTopControls.style.pointerEvents = 'none'; 
+    if (!connectedCube) {
+        elVisualizer.style.opacity = '0'; 
+        elTopControls.style.opacity = '0'; 
+        elTopControls.style.pointerEvents = 'none'; 
+    } else {
+        elVisualizer.style.opacity = '1';
+        elTopControls.style.opacity = '1';
+        elTopControls.style.pointerEvents = 'auto';
+    }
     timerInt = setInterval(updateTimer, 10); 
 }
 
@@ -1413,7 +1457,7 @@ function startTutorialAnimCube(formulaId, formulaStr) {
     const bgcolorHex = isDark ? '181818' : 'f3f4f6';
 
     // 组装参数
-    const paramStr = `id=${containerId}&bgcolor=${bgcolorHex}&buttonbar=0&edit=0&repeat=1&speed=22&movetext=0&clickprogress=0&initrevmove=#&demo=#&move=${encodeURIComponent(cleanFormula)}`;
+    const paramStr = `id=${containerId}&bgcolor=${bgcolorHex}&buttonbar=0&edit=0&repeat=1&speed=${cubeAnimSpeed}&movetext=0&clickprogress=0&initrevmove=#&demo=#&move=${encodeURIComponent(cleanFormula)}`;
 
     try {
         activeAnimCubeId = containerId;
@@ -1549,6 +1593,285 @@ function filterTutorial(query) {
     renderTutorial();
 }
 
+// ================= 蓝牙智能硬件连接与控制 logic =================
+async function connectBluetoothCube() {
+    try {
+        const btn = document.getElementById('connectCubeBtn');
+        if (connectedCube) {
+            await disconnectBluetoothCube();
+            return;
+        }
+        
+        if (btn) {
+            btn.innerText = '正在连接...';
+            btn.disabled = true;
+        }
+        
+        // 动态加载 cubing.js 蓝牙模块
+        const module = await import("https://cdn.cubing.net/v0/js/cubing/bluetooth");
+        connectedCube = await module.connectSmartPuzzle();
+        
+        connectedCube.addAlgLeafListener((e) => {
+            const move = e.latestAlgLeaf;
+            if (move) {
+                handleBluetoothCubeMove(move);
+            }
+        });
+        
+        if (connectedCube.addEventListener) {
+            connectedCube.addEventListener('disconnect', () => {
+                handleBluetoothCubeDisconnect();
+            });
+        }
+        
+        updateBluetoothUI();
+    } catch (err) {
+        console.error("连接蓝牙魔方失败:", err);
+        alert("连接蓝牙魔方失败: " + err.message);
+        connectedCube = null;
+        updateBluetoothUI();
+    }
+}
+
+async function disconnectBluetoothCube() {
+    if (connectedCube) {
+        try {
+            if (connectedCube.disconnect) {
+                await connectedCube.disconnect();
+            } else if (connectedCube.close) {
+                await connectedCube.close();
+            }
+        } catch (e) {
+            console.warn("断开蓝牙魔方连接异常:", e);
+        }
+        handleBluetoothCubeDisconnect();
+    }
+}
+
+function handleBluetoothCubeDisconnect() {
+    connectedCube = null;
+    updateBluetoothUI();
+}
+
+function getCurrentScrambledState() {
+    const size = parseInt(currentPuzzle[0]) || 3;
+    const state = getSolvedState(size);
+    if (currentScrambleStr) {
+        currentScrambleStr.split(' ').forEach(m => {
+            if (m) applyMove(state, m, currentPuzzle);
+        });
+    }
+    return state;
+}
+
+function isSolved(state) {
+    if (!state) return false;
+    const faces = ['U', 'R', 'F', 'D', 'L', 'B'];
+    for (let face of faces) {
+        const colors = state[face];
+        if (!colors || colors.length === 0) return false;
+        const first = colors[0];
+        if (!colors.every(c => c === first)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function handleBluetoothCubeMove(move) {
+    if (appState !== 'IDLE' && appState !== 'RUNNING') return;
+    
+    if (appState === 'IDLE') {
+        if (!document.getElementById('penaltyModal').classList.contains('hidden') ||
+            !document.getElementById('cyberpunkPB').classList.contains('hidden') ||
+            !document.getElementById('minimalPB').classList.contains('hidden') ||
+            !elAuthModal.classList.contains('hidden')) {
+            return;
+        }
+        
+        startTimer();
+        bluetoothCubeState = getCurrentScrambledState();
+    }
+    
+    if (bluetoothCubeState) {
+        applyMove(bluetoothCubeState, move, currentPuzzle);
+        
+        if (elVisualizer && ['222', '333', '444', '555', '666', '777', 'pyram'].includes(currentPuzzle)) {
+            elVisualizer.style.opacity = '1';
+            if (currentPuzzle === 'pyram') {
+                elVisualizer.innerHTML = renderPyraSVG(bluetoothCubeState);
+            } else {
+                elVisualizer.innerHTML = renderCubeSVG(bluetoothCubeState, currentPuzzle);
+            }
+        }
+        
+        if (isSolved(bluetoothCubeState)) {
+            stopTimer();
+        }
+    }
+}
+
+async function connectBluetoothTimer() {
+    try {
+        const btn = document.getElementById('connectTimerBtn');
+        if (connectedTimer) {
+            await disconnectBluetoothTimer();
+            return;
+        }
+        
+        if (btn) {
+            btn.innerText = '正在连接...';
+            btn.disabled = true;
+        }
+        
+        const module = await import("https://cdn.cubing.net/v0/js/cubing/bluetooth");
+        connectedTimer = await module.connectSmartTimer();
+        
+        connectedTimer.addEventListener('reset', handleTimerReset);
+        connectedTimer.addEventListener('start', handleTimerStart);
+        connectedTimer.addEventListener('update', handleTimerUpdate);
+        connectedTimer.addEventListener('stop', handleTimerStop);
+        connectedTimer.addEventListener('disconnect', handleTimerDisconnect);
+        
+        updateBluetoothUI();
+    } catch (err) {
+        console.error("连接蓝牙计时器失败:", err);
+        alert("连接蓝牙计时器失败: " + err.message);
+        connectedTimer = null;
+        updateBluetoothUI();
+    }
+}
+
+async function disconnectBluetoothTimer() {
+    if (connectedTimer) {
+        try {
+            if (connectedTimer.disconnect) {
+                await connectedTimer.disconnect();
+            } else if (connectedTimer.close) {
+                await connectedTimer.close();
+            }
+        } catch (e) {
+            console.warn("断开蓝牙计时器连接异常:", e);
+        }
+        handleTimerDisconnect();
+    }
+}
+
+function handleTimerDisconnect() {
+    if (connectedTimer) {
+        try {
+            connectedTimer.removeEventListener('reset', handleTimerReset);
+            connectedTimer.removeEventListener('start', handleTimerStart);
+            connectedTimer.removeEventListener('update', handleTimerUpdate);
+            connectedTimer.removeEventListener('stop', handleTimerStop);
+            connectedTimer.removeEventListener('disconnect', handleTimerDisconnect);
+        } catch (e) {}
+    }
+    connectedTimer = null;
+    updateBluetoothUI();
+}
+
+function handleTimerReset() {
+    if (elTimer) {
+        elTimer.innerText = formatTime(0);
+        elTimer.className = 'timer-font text-[22vw] md:text-[12rem] font-bold leading-none timer-idle text-neutral-900 dark:text-neutral-100';
+    }
+}
+
+function handleTimerStart() {
+    if (appState !== 'RUNNING') {
+        startTimer();
+    }
+}
+
+function handleTimerUpdate(e) {
+    if (e.detail && typeof e.detail.currentTime === 'number') {
+        if (elTimer) {
+            elTimer.innerText = formatTime(e.detail.currentTime);
+        }
+    }
+}
+
+function handleTimerStop(e) {
+    clearInterval(timerInt); 
+    releaseWakeLock(); 
+    triggerHaptic('stop'); 
+    
+    let timeMs = Date.now() - timerStart;
+    if (e.detail && typeof e.detail.currentTime === 'number') {
+        timeMs = e.detail.currentTime;
+    }
+    
+    currentSolveTime = timeMs; 
+    appState = 'IDLE'; 
+    if (elTimer) {
+        elTimer.className = 'timer-font text-[22vw] md:text-[12rem] font-bold leading-none timer-idle text-neutral-900 dark:text-neutral-100'; 
+        elTimer.innerText = formatTime(currentSolveTime); 
+    }
+    showPenaltyModal(currentSolveTime);
+}
+
+function updateBluetoothUI() {
+    const bleIndicator = document.getElementById('bluetoothIndicator');
+    const statusDisplay = document.getElementById('bluetoothStatusDisplay');
+    const connectCubeBtn = document.getElementById('connectCubeBtn');
+    const connectTimerBtn = document.getElementById('connectTimerBtn');
+    
+    let isConnected = false;
+    let statusText = '';
+    
+    if (connectedCube) {
+        isConnected = true;
+        statusText = `已连接智能魔方: ${connectedCube.name || 'Smart Cube'}`;
+        if (connectCubeBtn) {
+            connectCubeBtn.innerText = '断开魔方';
+            connectCubeBtn.disabled = false;
+            connectCubeBtn.className = 'bg-red-500 hover:bg-red-600 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md transition-colors';
+        }
+    } else {
+        if (connectCubeBtn) {
+            connectCubeBtn.innerText = '连接魔方';
+            connectCubeBtn.disabled = false;
+            connectCubeBtn.className = 'bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md transition-colors';
+        }
+    }
+    
+    if (connectedTimer) {
+        isConnected = true;
+        if (statusText) {
+            statusText += ' & ';
+        }
+        statusText += `已连接计时器: ${connectedTimer.name || 'Smart Timer'}`;
+        if (connectTimerBtn) {
+            connectTimerBtn.innerText = '断开计时器';
+            connectTimerBtn.disabled = false;
+            connectTimerBtn.className = 'bg-red-500 hover:bg-red-600 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md transition-colors';
+        }
+    } else {
+        if (connectTimerBtn) {
+            connectTimerBtn.innerText = '连接计时器';
+            connectTimerBtn.disabled = false;
+            connectTimerBtn.className = 'bg-green-500 hover:bg-green-600 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md transition-colors';
+        }
+    }
+    
+    if (!statusText) {
+        statusText = '未连接任何设备';
+    }
+    
+    if (statusDisplay) {
+        statusDisplay.innerText = statusText;
+    }
+    
+    if (bleIndicator) {
+        if (isConnected) {
+            bleIndicator.classList.remove('hidden');
+        } else {
+            bleIndicator.classList.add('hidden');
+        }
+    }
+}
+
 // ================= 暴露接口至全局 window 对象 =================
 window.switchTab = switchTab;
 window.toggleTheme = toggleTheme;
@@ -1573,3 +1896,6 @@ window.renderTutorial = renderTutorial;
 window.filterTutorial = filterTutorial;
 window.toggleFormula = toggleFormula;
 window.changeTimerPrecision = changeTimerPrecision;
+window.changeCubeAnimSpeed = changeCubeAnimSpeed;
+window.connectBluetoothCube = connectBluetoothCube;
+window.connectBluetoothTimer = connectBluetoothTimer;

@@ -39,7 +39,12 @@
                 </svg>
             </div>
             <div class="flex flex-col justify-center">
-                <h1 class="text-lg font-black tracking-tight text-neutral-900 dark:text-white leading-none">CUBE<span class="text-blue-500">TIMER</span></h1>
+                <div class="flex items-center gap-2">
+                    <h1 class="text-lg font-black tracking-tight text-neutral-900 dark:text-white leading-none">CUBE<span class="text-blue-500">TIMER</span></h1>
+                    <span id="bluetoothIndicator" class="hidden text-blue-500 dark:text-cyan-400 animate-pulse text-[10px] bg-blue-500/10 dark:bg-cyan-500/20 px-1.5 py-0.5 rounded-full font-bold flex items-center gap-1 select-none">
+                        <i class="fab fa-bluetooth"></i> BLE
+                    </span>
+                </div>
             </div>
         </div>
         <div class="flex gap-4 items-center h-8" id="headerActions">
@@ -207,6 +212,36 @@
                 </div>
             </div>
 
+            <!-- 蓝牙智能硬件连接 -->
+            <div class="bg-white dark:bg-neutral-900 rounded-2xl shadow-sm border border-neutral-200 dark:border-neutral-800 overflow-hidden mb-6 transition-colors">
+                <div class="p-4 border-b border-neutral-100 dark:border-neutral-800 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-blue-100 dark:bg-blue-500/20 p-2 rounded-lg text-blue-500"><i class="fab fa-bluetooth w-5 text-center text-lg"></i></div>
+                        <div>
+                            <div class="font-bold text-neutral-800 dark:text-neutral-200 text-sm">智能魔方与计时器连接</div>
+                            <div class="text-[10px] text-neutral-500 mt-0.5" id="bluetoothStatusDisplay">未连接任何设备</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-4 flex flex-col gap-3">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <span class="text-xs font-bold text-neutral-700 dark:text-neutral-300">连接蓝牙智能魔方</span>
+                            <div class="text-[9px] text-neutral-400 mt-0.5">支持 GAN iCarry / Giiker 等魔方实时转动计时</div>
+                        </div>
+                        <button onclick="window.connectBluetoothCube()" id="connectCubeBtn" class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md transition-colors">连接魔方</button>
+                    </div>
+                    <hr class="border-neutral-100 dark:border-neutral-800/80">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <span class="text-xs font-bold text-neutral-700 dark:text-neutral-300">连接蓝牙智能计时器</span>
+                            <div class="text-[9px] text-neutral-400 mt-0.5">支持 GAN 智能计时器等硬件拍表计步</div>
+                        </div>
+                        <button onclick="window.connectBluetoothTimer()" id="connectTimerBtn" class="bg-green-500 hover:bg-green-600 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md transition-colors">连接计时器</button>
+                    </div>
+                </div>
+            </div>
+
             <!-- 主题风格设置 -->
             <div class="bg-white dark:bg-neutral-900 rounded-2xl shadow-sm border border-neutral-200 dark:border-neutral-800 overflow-hidden transition-colors">
                 <div class="p-4 flex justify-between items-center border-b border-neutral-100 dark:border-neutral-800">
@@ -232,7 +267,20 @@
                     <select id="timerPrecisionSelect" onchange="window.changeTimerPrecision()" class="bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white text-xs font-bold py-1.5 pl-3 pr-8 rounded-lg border border-neutral-300 dark:border-neutral-700 focus:outline-none w-36 cursor-pointer">
                         <option value="2">0.00 (两位)</option>
                         <option value="3">0.000 (三位)</option>
-                    </select>
+                </div>
+                <div class="p-4 flex flex-col gap-2 border-b border-neutral-100 dark:border-neutral-800">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-pink-100 dark:bg-pink-500/20 p-2 rounded-lg text-pink-500"><i class="fas fa-running w-5 text-center"></i></div>
+                            <span class="font-bold text-neutral-800 dark:text-neutral-200">公式演示速度</span>
+                        </div>
+                        <span id="cubeAnimSpeedVal" class="text-xs font-bold text-neutral-500 font-mono">22</span>
+                    </div>
+                    <div class="flex items-center gap-4 mt-1 px-1">
+                        <span class="text-[10px] text-neutral-400">慢</span>
+                        <input type="range" id="cubeAnimSpeedSelect" min="8" max="45" value="22" oninput="window.changeCubeAnimSpeed(this.value)" class="flex-1 accent-blue-500 bg-neutral-200 dark:bg-neutral-800 h-1 rounded-lg appearance-none cursor-pointer">
+                        <span class="text-[10px] text-neutral-400">快</span>
+                    </div>
                 </div>
                 <div class="p-4 flex justify-between items-center border-b border-neutral-100 dark:border-neutral-800">
                     <div class="flex items-center gap-3">
