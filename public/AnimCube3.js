@@ -266,9 +266,10 @@ function AnimCube3(params) {
       }
     }
     // clean the cube
+    var defaultColorScheme = [11, 10, 14, 15, 12, 13]; // U=Y(11), D=W(10), F=G(14), B=B(15), L=O(12), R=R(13)
     for (var i = 0; i < 6; i++)
       for (var j = 0; j < 9; j++)
-        cube[i][j] = i + 10;
+        cube[i][j] = defaultColorScheme[i];
     param = getParameter("supercube");
     if (param != null)
       if ("1" == (param)) {
@@ -2244,8 +2245,22 @@ function AnimCube3(params) {
     var outerLoopBot = false;
     var cont = false;
     var mv = demo ? demoMove[0] : move[curMove];
+    var waitingToClearDemo = false;
+    var pauseUntil = 0;
 
     function callback() {
+      if (waitingToClearDemo) {
+        if (restarted || interrupted) {
+          waitingToClearDemo = false;
+        } else if (Date.now() < pauseUntil) {
+          paint();
+          requestAnimationFrame(callback);
+          return;
+        } else {
+          waitingToClearDemo = false;
+          clearDemo(mv);
+        }
+      }
       if (outerLoopTop) {
         outerLoopTop = false;
         restart = false;
@@ -2385,10 +2400,12 @@ function AnimCube3(params) {
               movePos++;
             }
             if (movePos == mv.length) {
-              if (!demo)
+              if (!demo) {
                 outerLoopBot = true;
-              else
-                clearDemo(mv);
+              } else {
+                waitingToClearDemo = true;
+                pauseUntil = Date.now() + 1000;
+              }
             }
           }
           else
